@@ -1,0 +1,225 @@
+﻿using InventorySalesManagement.Core.Entity.ApplicationData;
+using InventorySalesManagement.Core.Entity.SectionsData;
+using InventorySalesManagement.RepositoryLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+
+namespace InventorySalesManagement.Controllers.MVC;
+
+[Authorize]
+public class MainSectionsController : Controller
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private ApplicationUser _user;
+
+    public MainSectionsController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+        _userManager = userManager;
+
+    }
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        var userId = _userManager.GetUserId(User);
+        _user = _unitOfWork.Users.Find(s => s.Id == userId);
+    }
+
+    //-------------------------------------------------------------------------------------------------------------
+    // GET: MainSections
+    public async Task<IActionResult> Index()
+    {
+        return View(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false));
+    }
+
+    // GET: MainSections/Details/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null || _unitOfWork.MainSections == null)
+        {
+            return NotFound();
+        }
+
+        var mainSection = await _unitOfWork.MainSections
+            .FindAsync(m => m.Id == id && m.IsDeleted == false);
+        if (mainSection == null)
+        {
+            return NotFound();
+        }
+
+        return View(mainSection);
+    }
+
+    // GET: MainSections/Create
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(MainSection mainSection)
+    {
+        if (!ModelState.IsValid) return View(mainSection);
+       
+
+        await _unitOfWork.MainSections.AddAsync(mainSection);
+        await _unitOfWork.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET: MainSections/Edit/5
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null || _unitOfWork.MainSections == null)
+        {
+            return NotFound();
+        }
+
+        var mainSection = await _unitOfWork.MainSections
+            .FindAsync(m => m.Id == id && m.IsDeleted == false);
+        if (mainSection == null)
+        {
+            return NotFound();
+        }
+        return View(mainSection);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, MainSection mainSection)
+    {
+        if (id != mainSection.Id)
+        {
+            return NotFound();
+        }
+
+        if (!ModelState.IsValid) return View(mainSection);
+        try
+        {
+           
+          
+            _unitOfWork.MainSections.Update(mainSection);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!MainSectionExists(mainSection.Id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (_unitOfWork.MainSections == null)
+        {
+            return Problem("Entity set 'ApplicationContext.MainSections'  is null.");
+        }
+        var mainSection = await _unitOfWork.MainSections
+            .FindByQuery(
+                criteria: s => s.Id == id && s.IsDeleted == false).FirstOrDefaultAsync();
+        if (mainSection != null)
+        {
+            mainSection.IsDeleted = true;
+            mainSection.IsShow = false;
+            mainSection.DeletedAt = DateTime.Now;
+            _unitOfWork.MainSections.Update(mainSection);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Show(int? id)
+    {
+        if (id == null || _unitOfWork.MainSections == null)
+        {
+            return NotFound();
+        }
+
+        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
+        if (mainSections == null)
+        {
+            return NotFound();
+        }
+        mainSections.IsShow = true;
+        _unitOfWork.MainSections.Update(mainSections);
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Hide(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
+        if (mainSections == null)
+        {
+            return NotFound();
+        }
+        mainSections.IsShow = false;
+        _unitOfWork.MainSections.Update(mainSections);
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Featured(int? id)
+    {
+        if (id == null || _unitOfWork.MainSections == null)
+        {
+            return NotFound();
+        }
+
+        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
+        if (mainSections == null)
+        {
+            return NotFound();
+        }
+        mainSections.IsFeatured = true;
+        _unitOfWork.MainSections.Update(mainSections);
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> NotFeatured(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
+        if (mainSections == null)
+        {
+            return NotFound();
+        }
+        mainSections.IsFeatured = false;
+        _unitOfWork.MainSections.Update(mainSections);
+        await _unitOfWork.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    private bool MainSectionExists(int id)
+    {
+        return _unitOfWork.MainSections.IsExist(e => e.Id == id);
+    }
+}
