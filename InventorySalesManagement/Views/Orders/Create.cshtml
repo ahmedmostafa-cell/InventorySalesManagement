@@ -1,0 +1,273 @@
+﻿@model OrderViewModel
+
+@{
+    ViewData["Title"] = "الفواتير";
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <label>الخدمة:</label>
+        <select id="serviceDropdown" class="form-control">
+            <option value="">اختر الخدمة</option>
+            @foreach (var service in Model.Services)
+            {
+                <option value="@service.Id" data-price="@service.Price">@service.TitleAr</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label>السعر:</label>
+        <input type="text" id="servicePrice" class="form-control" disabled>
+    </div>
+
+    <div class="col-md-2">
+        <label>الكمية:</label>
+        <input type="number" id="serviceQty" class="form-control" min="1" value="1">
+    </div>
+
+    <div class="col-md-2">
+        <label>الإجمالي:</label>
+        <input type="text" id="serviceTotal" class="form-control" disabled>
+    </div>
+
+    <div class="col-md-2">
+        <button id="addServiceBtn" class="btn btn-primary mt-4">إضافة</button>
+    </div>
+</div>
+
+<!-- Table to show added services -->
+<table id="orderTable" class="table table-bordered mt-4">
+    <thead>
+        <tr>
+            <th>الخدمة</th>
+            <th>السعر</th>
+            <th>الكمية</th>
+            <th>الإجمالي</th>
+            <th>حذف</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<button id="saveOrderBtn" class="btn btn-success">حفظ الطلب</button>
+<div class="row mt-3">
+    <div class="col-md-4 offset-md-8">
+        <label><strong>إجمالي الفاتورة:</strong></label>
+        <input type="text" id="invoiceTotal" class="form-control" disabled>
+    </div>
+</div>
+<div style="margin-bottom: 4rem; text-align: end;">
+    <a asp-action="Index" class="btn btn-secondary">العودة للقائمة</a>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        
+
+    }
+    <script>
+        $(document).ready(function () {
+            let orderItems = [];
+
+            // Update price and total when selecting a service
+            $("#serviceDropdown").change(function () {
+                let price = parseFloat($("#serviceDropdown option:selected").attr("data-price"));
+                $("#servicePrice").val(price);
+                let qty = $("#serviceQty").val();
+                $("#serviceTotal").val(price * qty);
+            });
+
+            // Update total when changing quantity
+            $("#serviceQty").on("input", function () {
+                let price = parseFloat($("#servicePrice").val());
+                let qty = parseInt($(this).val());
+                $("#serviceTotal").val(price * qty);
+            });
+
+            // Add service to the table
+            $("#addServiceBtn").click(function () {
+                let serviceId = $("#serviceDropdown").val();
+                let serviceName = $("#serviceDropdown option:selected").text();
+                let price = parseFloat($("#servicePrice").val());
+                let qty = parseInt($("#serviceQty").val());
+                let total = price * qty;
+
+                if (!serviceId) {
+                    alert("يرجى اختيار خدمة");
+                    return;
+                }
+
+                // Check if service already exists
+                let existing = orderItems.find(x => x.ServiceId == serviceId);
+                if (existing) {
+                    existing.Quantity += qty;
+                    existing.Total = existing.Quantity * price;
+                } else {
+                    orderItems.push({ ServiceId: serviceId, ServiceName: serviceName, Price: price, Quantity: qty, Total: total });
+                }
+
+                updateTable();
+            });
+
+            // Update Table Function
+            function updateTable() {
+                $("#orderTable tbody").empty();
+                let totalInvoice = 0;
+                orderItems.forEach((item, index) => {
+                    totalInvoice += item.Total;
+
+                    $("#orderTable tbody").append(`
+                        <tr>
+                            <td>${item.ServiceName}</td>
+                            <td>${item.Price}</td>
+                            <td><input type="number" class="form-control qtyInput" data-index="${index}" value="${item.Quantity}"></td>
+                            <td>${item.Total}</td>
+                            <td><button class="btn btn-danger deleteRow" data-index="${index}">X</button></td>
+                        </tr>
+                    `);
+                });
+                $("#invoiceTotal").val(totalInvoice.toFixed(2)); // Update the invoice total display
+
+            }
+
+            // Update Quantity and Total in Table
+            $(document).on("input", ".qtyInput", function () {
+                let index = $(this).data("index");
+                let newQty = parseInt($(this).val());
+                orderItems[index].Quantity = newQty;
+                orderItems[index].Total = newQty * orderItems[index].Price;
+                updateTable();
+            });
+
+            // Delete Row
+            $(document).on("click", ".deleteRow", function () {
+                let index = $(this).data("index");
+                orderItems.splice(index, 1);
+                updateTable();
+            });
+
+            // Save Order
+            $("#saveOrderBtn").click(function () {
+                if (orderItems.length === 0) {
+                    alert("يرجى إضافة خدمات");
+                    return;
+                }
+
+                let orderData = { OrderServices: orderItems };
+
+                $.ajax({
+                    url: "/Orders/Create",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(orderData),
+                    success: function () {
+                        alert("تم حفظ الطلب بنجاح!");
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+
+    </script>
+    <script>
+        tinymce.init({
+            selector: "textarea",
+            branding: false,
+            promotion: false,
+            statusbar: false
+        });
+    </script>
+    <script>
+        function getUserData() {
+            let userId = $("#select-state").val();
+            console.log(userId);
+
+            $.ajax({
+                url: "/Services/CheckUserType",
+                data: { "userId": userId },
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    console.log(result)
+
+                    if (result.error == false) {
+                        $('#errorMessage').hide();
+                        $('#errorMessage').empty();
+                        $('#successMessage').empty();
+                        $('#successMessage').show();
+                        $('#successMessage').append(result.message);
+
+                        if (result.type == 1) {
+                            $("#divEmployeesNumber").show();
+                            $("#inHome").show();
+                            $("#inCenter").show();
+                        }
+                        else {
+                            $("#divEmployeesNumber").hide();
+                            $("#inHome").show();
+                            $("#inCenter").hide();
+                            document.getElementById('inCenterInput').checked = false;
+                            $("#inputEmployeesNumber").val('0');
+                        }
+                    }
+
+                    else {
+
+                        $('#successMessage').hide();
+                        $('#successMessage').empty();
+                        $('#errorMessage').empty();
+                        $('#errorMessage').show();
+                        $('#errorMessage').append(result.message);
+                        $("#inCenter").hide();
+                        $("#inHome").hide();
+                        $("#divEmployeesNumber").hide();
+                        document.getElementById('inCenterInput').checked = false;
+                        document.getElementById('inHomeInput').checked = false;
+                        $("#inputEmployeesNumber").val('0');
+
+                    }
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+
+        }
+
+
+    </script>
+    <script>
+
+        function changeFinalPrice() {
+            let price = $("#thePrice").val();
+            let discount = $("#theDiscount").val();
+            if (price == '') {
+                $("#theFinalPrice").val('');
+            }
+            if (discount == 0 || discount == '') {
+                $("#theFinalPrice").val(price);
+            }
+            else {
+                let finalPrice = price - (price * discount / 100);
+                $("#theFinalPrice").val(finalPrice);
+            }
+            let finalPrice = price - (price * discount / 100);
+            $("#theFinalPrice").val(finalPrice);
+        }
+
+
+
+
+    </script>
+
+
+}

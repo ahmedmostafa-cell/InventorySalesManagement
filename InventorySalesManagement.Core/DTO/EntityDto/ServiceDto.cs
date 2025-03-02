@@ -19,6 +19,7 @@ public class ServiceDto
 
     [Required(ErrorMessage = "الرصيد الحالي مطلوب")]
     [Display(Name = "رصيد المنتج ")]
+    [Range(1, 1000000, ErrorMessage = "الرصيد يجب ان يكون اكبر من 0")]
     public int Qty { get; set; }
 
     [Required(ErrorMessage = "نوع المنتج مطلوب")]

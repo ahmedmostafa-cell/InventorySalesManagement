@@ -8,9 +8,6 @@ public class OrderDto
     [Required(ErrorMessage = " يجب ادخال موعد التنفيذ ")]
     public DateTime StartingOn { get; set; }
 
-    [Display(Name = "الخدمة")]
-    [Required(ErrorMessage = "الخدمة")]
-    public int ServiceId { get; set; }
 
     [Display(Name = "العنوان")]
     [Required(ErrorMessage = "العنوان")]

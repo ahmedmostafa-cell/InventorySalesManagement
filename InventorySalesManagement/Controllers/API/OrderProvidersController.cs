@@ -1,5 +1,6 @@
 ﻿using InventorySalesManagement.Core.DTO;
 using InventorySalesManagement.Core.Entity.ApplicationData;
+using InventorySalesManagement.Core.Entity.OrderServiceData;
 using InventorySalesManagement.Core.Helpers;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -62,11 +63,6 @@ public class OrderProvidersController : BaseApiController, IActionFilter
                 s.Id,
                 s.CreatedOn,
                 s.Total,
-                Service = new
-                {
-                    s.Service.Id,
-                    title = lang == "ar" ? s.Service.TitleAr : s.Service.TitleEn,
-                },
             }).ToListAsync();
 
         if (!orders.Any())
@@ -87,43 +83,51 @@ public class OrderProvidersController : BaseApiController, IActionFilter
     }
 
     //----------------------------------------------------------------------------------------------------
-    [HttpGet("GetOrderById/{id:required:int}")]
-    public async Task<ActionResult<BaseResponse>> GetOrderById([FromHeader] string lang, int id)
+    //[HttpGet("GetOrderById/{id:required:int}")]
+    //public async Task<ActionResult<BaseResponse>> GetOrderById([FromHeader] string lang, int id)
+    //{
+    //    if (_user == null)
+    //    {
+    //        _baseResponse.ErrorCode = (int)Errors.TheUserNotExistOrDeleted;
+    //        _baseResponse.ErrorMessage = lang == "ar"
+    //            ? "هذا الحساب غير موجود "
+    //            : "The User Not Exist ";
+    //        return Ok(_baseResponse);
+    //    }
+
+    //    var order = await _unitOfWork.Orders.FindByQuery(
+    //            criteria: s => s.Id == id && s.IsDeleted == false)
+    //        .Select(s => new
+    //        {
+    //            s.Id,
+    //            s.CreatedOn,
+    //            s.Total,
+    //        }).FirstOrDefaultAsync();
+
+    //    if (order == null)
+    //    {
+    //        _baseResponse.ErrorCode = (int)Errors.NoData;
+    //        _baseResponse.ErrorMessage = lang == "ar"
+    //            ? "لا يوجد طلبات "
+    //            : "No Orders ";
+    //        return Ok(_baseResponse);
+    //    }
+
+    //    _baseResponse.ErrorCode = (int)Errors.Success;
+    //    _baseResponse.Data = order;
+    //    return Ok(_baseResponse);
+    //}
+
+    [HttpGet("GetOrderById/{id}")]
+    public IActionResult GetOrderById(int id)
     {
-        if (_user == null)
+        var orderDetails = _unitOfWork.Orders.GetById(id);
+
+        if (orderDetails == null)
         {
-            _baseResponse.ErrorCode = (int)Errors.TheUserNotExistOrDeleted;
-            _baseResponse.ErrorMessage = lang == "ar"
-                ? "هذا الحساب غير موجود "
-                : "The User Not Exist ";
-            return Ok(_baseResponse);
+            return NotFound(new { message = "Order not found" });
         }
 
-        var order = await _unitOfWork.Orders.FindByQuery(
-                criteria: s => s.Id == id && s.IsDeleted == false)
-            .Select(s => new
-            {
-                s.Id,
-                s.CreatedOn,
-                s.Total,
-                Service = new
-                {
-                    s.Service.Id,
-                    title = lang == "ar" ? s.Service.TitleAr : s.Service.TitleEn,
-                },
-            }).FirstOrDefaultAsync();
-
-        if (order == null)
-        {
-            _baseResponse.ErrorCode = (int)Errors.NoData;
-            _baseResponse.ErrorMessage = lang == "ar"
-                ? "لا يوجد طلبات "
-                : "No Orders ";
-            return Ok(_baseResponse);
-        }
-
-        _baseResponse.ErrorCode = (int)Errors.Success;
-        _baseResponse.Data = order;
-        return Ok(_baseResponse);
+        return Ok(orderDetails);
     }
 }

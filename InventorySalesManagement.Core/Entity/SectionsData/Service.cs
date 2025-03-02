@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using InventorySalesManagement.Core.Entity.OrderData;
 using InventorySalesManagement.Core.Helpers;
+using InventorySalesManagement.Core.Entity.OrderServiceData;
 
 namespace InventorySalesManagement.Core.Entity.SectionsData;
 
@@ -23,6 +24,7 @@ public class Service : BaseEntity
 
     [Required(ErrorMessage = "الرصيد الحالي مطلوب")]
     [Display(Name = "رصيد المنتج ")]
+    [Range(1, 1000000, ErrorMessage = "الرصيد يجب ان يكون اكبر من 0")]
     public int Qty { get; set; }
 
     [Required(ErrorMessage = "نوع المنتج مطلوب")]
@@ -48,6 +50,7 @@ public class Service : BaseEntity
     //--------------------------------------------------------------------
     public IEnumerable<Order> Orders { get; set; } = new List<Order>();
 
+    public List<OrderService> OrderServices { get; set; } = new List<OrderService>();
 
 
 }

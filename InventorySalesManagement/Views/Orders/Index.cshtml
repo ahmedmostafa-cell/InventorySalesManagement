@@ -3,14 +3,14 @@
 @{
     ViewData["Title"] = "قائمة بكل الحجوزات ";
     Layout = "~/Views/Shared/_MainLayout.cshtml";
-    var error = TempData["Error"] ;  
-    var success = TempData["Success"] ;
+    var error = TempData["Error"];
+    var success = TempData["Success"];
 }
 <div class="row">
     <div class="col-md-12 col-lg-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title" >كل الحجوزات   </h3>
+                <h3 class="card-title">كل الحجوزات   </h3>
                 @if (error != null)
                 {
                     <div style="text-align: center;" class="alert alert-danger" role="alert">
@@ -27,38 +27,62 @@
             <div class="table-responsive" style="padding: 1.5rem; overflow-x: inherit;">
                 <table class="table mb-0 table-borderless" id="table_id">
                     <thead>
-                    <tr>
-                        <th> رقم الطلب </th>
-                        <th>اسم الخدمة</th>
-                        <th>اسم مقدم الخدمة </th>
-                        <th>نوع مقدم الخدمة </th>
-                        <th>اسم العميل </th>
-                        <th>حالة الطلب</th>
-                        <th>حالة السداد</th>
-                    </tr>
+                        <tr>
+                            <th>رقم الفاتورة</th>
+                            <th>تاريخ الفاتورة </th>
+                            <th>اجمالي الفاتورة </th>
+                            <th>التفاصيل</th>
+                          
+
+                        </tr>
                     </thead>
                     <tbody>
-                    @foreach (var item in Model) {
-                        <tr>
-                            <td>
-                                    @Html.DisplayFor(modelItem => item.Id)
-                            </td>
-                            <td>
-                                    @item.Service.TitleAr
-                            </td>
-                           
-                           
-                           
-                           
-                           
-                          
-                            
-                           
-                     
-                        </tr>
-                    }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    @item.Id
+                                </td>
+                                <td>
+                                    @item.CreatedOn
+                                </td>
+                                <td>
+                                    @item.Total
+                                </td>
+                                <td>
+                                    <button class="btn btn-info btn-sm view-details" data-id="@item.Id">عرض التفاصيل</button>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
+            </div>
+            <!-- تفاصيل الفاتورة -->
+            <div class="card mt-3" id="invoiceDetailsCard" style="display: none;">
+                <div class="card-header">
+                    <h4>تفاصيل الفاتورة</h4>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>اسم المنتج</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceDetailsBody">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-right">الإجمالي الكلي</th>
+                                <th id="totalInvoiceAmount">0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -66,22 +90,65 @@
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <script>
-         $(document).ready( function () {
-                $('#table_id').DataTable( {
-                     paging: true,
-                     ordering:  true,
-                     "pagingType": "simple_numbers",
-                     "lengthMenu": [ 10, 20, 75, 100 ] ,
-                     "oLanguage": {
-                                   "sSearch": "البحث"
-                                  }
-                } );
-        } );
- 
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
+    <script>
+        $(document).ready(function () {
+            $('#table_id').DataTable({
+                paging: true,
+                ordering: true,
+                "pagingType": "simple_numbers",
+                "lengthMenu": [10, 20, 75, 100],
+                "oLanguage": {
+                    "sSearch": "البحث"
+                }
+            });
+        });
+
+        // تفاصيل الفاتورة
+        $(document).on("click", ".view-details", function () {
+            var invoiceId = $(this).data("id");
+          
+
+            $.ajax({
+                url: '/Orders/Details', // Updated to hit the Create endpoint
+                type: 'POST',
+                contentType: 'application/json', // Ensure the correct content type
+                data: JSON.stringify(invoiceId), // Convert JS object to JSON string
+                success: function (response) {
+                    if (response.success) {
+                        $("#invoiceDetailsBody").empty();
+                        let totalInvoice = 0;
+
+                        $.each(response.orderServices, function (index, item) {
+                            let total = item.quantity * item.unitPrice;
+                            totalInvoice += total;
+
+                            $("#invoiceDetailsBody").append(`
+                                <tr>
+                                    <td>${item.serviceName}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.unitPrice.toFixed(2)}</td>
+                                    <td>${total.toFixed(2)}</td>
+                                </tr>
+                            `);
+                        });
+
+                        $("#totalInvoiceAmount").text(totalInvoice.toFixed(2));
+                        $("#invoiceDetailsCard").fadeIn();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText || "حدث خطأ أثناء جلب البيانات.");
+                }
+            });
+        });
+
+                
     </script>
 }
 

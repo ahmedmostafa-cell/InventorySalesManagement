@@ -71,23 +71,10 @@ public class OrderUsersController : BaseApiController, IActionFilter
             return Ok(_baseResponse);
         }
 
-        var service = await _unitOfWork.Services.FindByQuery(
-                criteria: s => s.Id == orderDto.ServiceId &&
-                               s.IsDeleted == false)
-            .FirstOrDefaultAsync();
-
-        if (service == null)
-        {
-            _baseResponse.ErrorCode = (int)Errors.TheServiceNotExistOrDeleted;
-            _baseResponse.ErrorMessage = lang == "ar"
-                ? "هذه الخدمة غير موجودة "
-                : "The Service Not Exist ";
-            return Ok(_baseResponse);
-        }
-
+      
+      
         var order = new Order
         {
-            ServiceId = service.Id,
             CreatedOn = DateTime.Now,
             IsDeleted = false,
         };
