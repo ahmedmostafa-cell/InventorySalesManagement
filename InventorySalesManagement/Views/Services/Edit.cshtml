@@ -17,18 +17,16 @@
 
                 </div>
             </div>
-            <div class="card-body mb-0"> 
-                <form class="form-horizontal" asp-action="Edit" enctype="multipart/form-data" runat="server">
-                    <div asp-validation-summary="All" style="margin-bottom: 2rem; text-align: center;" class="text-danger"></div>
-                    
+            <div class="card-body mb-0">
+                <form id="editForm" class="form-horizontal" asp-action="Edit" enctype="multipart/form-data">
+                    <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
+
                     <input type="hidden" asp-for="Id" />
                     <input type="hidden" asp-for="CreatedAt" />
                     <input type="hidden" asp-for="IsDeleted" />
                     <input type="hidden" asp-for="UpdatedAt" />
                     <input type="hidden" asp-for="IsUpdated" />
-                    
-                     
-                   
+
                     <div class="form-group">
                         <label asp-for="MainSectionId" class="control-label"></label>
                         <select asp-for="MainSectionId" class="form-control" asp-items="ViewBag.MainSectionId">
@@ -38,56 +36,44 @@
 
                     <div class="form-group">
                         <label asp-for="TitleAr" class="control-label"></label>
-                        <input asp-for="TitleAr" class="form-control"/>
+                        <input asp-for="TitleAr" class="form-control" />
                         <span asp-validation-for="TitleAr" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="TitleEn" class="control-label"></label>
-                        <input asp-for="TitleEn" class="form-control"/>
+                        <input asp-for="TitleEn" class="form-control" />
                         <span asp-validation-for="TitleEn" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="Description" class="control-label"></label>
-                        <textarea rows="5" asp-for="Description" id="editor1" class="form-control " > </textarea>
+                        <textarea rows="5" asp-for="Description" id="editor1" class="form-control"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-                 
 
                     <div class="form-group">
                         <label asp-for="Price" class="control-label"></label>
-                        <input id="thePrice" onchange="changeFinalPrice()" asp-for="Price" class="form-control"/>
+                        <input id="thePrice" onchange="changeFinalPrice()" asp-for="Price" class="form-control" />
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="Qty" class="control-label"></label>
                         <input id="theQty" asp-for="Qty" class="form-control" />
                         <span asp-validation-for="Qty" class="text-danger"></span>
                     </div>
 
-
                     <div class="form-group">
                         <label asp-for="ProductType" class="control-label"></label><br />
-
                         <input type="radio" asp-for="ProductType" value="Stored" /> مخزن
                         <input type="radio" asp-for="ProductType" value="Service" /> خدمة
-
                         <span asp-validation-for="ProductType" class="text-danger"></span>
                     </div>
-                  
-
-                   
-                       
-                    
-                  
-                   
-                    
-					
-                        	
 
                     <div class="form-group mb-0 row justify-content-end">
                         <div class="col-md-9 float-end">
-                            <input type="submit" value="تعديل " class="btn btn-primary waves-effect waves-light">
+                            <button type="submit" class="btn btn-primary waves-effect waves-light">تعديل</button>
                         </div>
                     </div>
                 </form>
@@ -106,6 +92,40 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script>
+            $(document).ready(function () {
+                $("form").submit(function (event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    var formData = new FormData(this); // Capture form data
+                    $.ajax({
+                        url: "@Url.Action("Edit", "Services")",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response.success) {
+                                $('#successMessage').show().text(response.message);
+                                $('#errorMessage').hide();
+                            } else {
+                                $('#successMessage').hide();
+                                if (response.errors) {
+                                    $('#errorMessage').show().html(response.errors.join("<br>"));
+                                } else {
+                                    $('#errorMessage').show().text(response.message);
+                                }
+                            }
+                        },
+                        error: function () {
+                            $('#errorMessage').show().text("حدث خطأ أثناء تنفيذ الطلب.");
+                            $('#successMessage').hide();
+                        }
+                    });
+                });
+            });
+        </script>
+
     }
         <script>
                     tinymce.init({

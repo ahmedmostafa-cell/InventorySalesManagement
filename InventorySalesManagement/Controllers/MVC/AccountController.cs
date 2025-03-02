@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using NuGet.Common;
 
 namespace InventorySalesManagement.Controllers.MVC;
 
@@ -33,28 +34,35 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginModel loginUser)
+    public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         if (!ModelState.IsValid)
         {
-            return View(loginUser);
+            return Json(new { success = false, message = "Invalid input." });
         }
-        var result = await _accountService.LoginAsync(loginUser);
+
+        var result = await _accountService.LoginAsync(model);
+        Response.Cookies.Append("AuthToken", result.Token, new CookieOptions
+        {
+            HttpOnly = true, // Prevents JavaScript access (more secure)
+            Secure = true,   // Ensures cookie is sent over HTTPS
+            Expires = DateTime.UtcNow.AddHours(2) // Token expiry
+        });
+        var user = await _accountService.GetUserByPhoneNumber(model.PhoneNumber);
+        if (user.IsAdmin)
+        {
+            await _signInManager.SignInAsync(user, model.IsPersist);
+            return Json(new { success = true, result.Token });
+        }
         if (!result.IsAuthenticated)
         {
             ModelState.AddModelError(string.Empty, result.Message);
-            return View(loginUser);
+            return Json(new { success = false, message = "Invalid username or password." });
         }
-        var user = await _accountService.GetUserByPhoneNumber(loginUser.PhoneNumber);
 
-        if (user.IsAdmin)
-        {
-            await _signInManager.SignInAsync(user, loginUser.IsPersist);
-            return RedirectToAction("Index", "Dashboard");
-        }
+        
         ModelState.AddModelError(string.Empty, "لا تملك الصلاحية اللازمه للدخول");
-        return View(loginUser);
+        return Json(new { success = false, message = "unauthorized." });
     }
 
     [Authorize]

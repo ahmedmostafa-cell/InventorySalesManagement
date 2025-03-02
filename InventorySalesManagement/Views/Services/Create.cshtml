@@ -18,10 +18,9 @@
                 </div>
             </div>
             <div class="card-body mb-0">
-                <form class="form-horizontal" asp-action="Create" enctype="multipart/form-data" runat="server">
+                <form id="createServiceForm" class="form-horizontal" asp-action="Create" enctype="multipart/form-data" runat="server">
                     <div asp-validation-summary="All" style="margin-bottom: 2rem; text-align: center;" class="text-danger"></div>
 
-                  
                     <div class="form-group">
                         <label asp-for="MainSectionId" class="control-label"></label>
                         <select asp-for="MainSectionId" class="form-control" asp-items="ViewBag.MainSectionId">
@@ -31,53 +30,48 @@
 
                     <div class="form-group">
                         <label asp-for="TitleAr" class="control-label"></label>
-                        <input asp-for="TitleAr" class="form-control"/>
+                        <input asp-for="TitleAr" class="form-control" />
                         <span asp-validation-for="TitleAr" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="TitleEn" class="control-label"></label>
-                        <input asp-for="TitleEn" class="form-control"/>
+                        <input asp-for="TitleEn" class="form-control" />
                         <span asp-validation-for="TitleEn" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="Description" class="control-label"></label>
-                        <textarea rows="5" asp-for="Description" id="editor1" class="form-control " > </textarea>
+                        <textarea rows="5" asp-for="Description" id="editor1" class="form-control"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-                   
-                   
+
                     <div class="form-group">
                         <label asp-for="Price" class="control-label"></label>
-                        <input id="thePrice" onchange="changeFinalPrice()" asp-for="Price" class="form-control"/>
+                        <input id="thePrice" onchange="changeFinalPrice()" asp-for="Price" class="form-control" />
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="Qty" class="control-label"></label>
                         <input id="Qty" asp-for="Qty" class="form-control" />
                         <span asp-validation-for="Qty" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="ProductType" class="control-label"></label><br />
-
                         <input type="radio" asp-for="ProductType" value="Stored" /> مخزن
                         <input type="radio" asp-for="ProductType" value="Service" /> خدمة
-
                         <span asp-validation-for="ProductType" class="text-danger"></span>
                     </div>
-                   
-                   
-                    
-
-                   
-
 
                     <div class="form-group mb-0 row justify-content-end">
                         <div class="col-md-9 float-end">
-                            <input type="submit" value="أنشاء" class="btn btn-primary waves-effect waves-light">
+                            <button type="submit" class="btn btn-primary waves-effect waves-light">أنشاء</button>
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
@@ -91,6 +85,39 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $("#createServiceForm").submit(function (e) {
+                    e.preventDefault(); // Prevent full-page reload
+
+                    var formData = new FormData(this); // Get form data, including files
+
+                    $.ajax({
+                        url: "@Url.Action("Create", "Services")", // Change to your actual controller
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.success) {
+                                $("#successMessage").text(response.message).show();
+                                $("#errorMessage").hide();
+                                $("#createServiceForm")[0].reset(); // Clear the form
+                            } else {
+                                $("#errorMessage").text(response.message).show();
+                                $("#successMessage").hide();
+                            }
+                        },
+                        error: function () {
+                            $("#errorMessage").text("حدث خطأ غير متوقع، حاول مرة أخرى.").show();
+                            $("#successMessage").hide();
+                        }
+                    });
+                });
+            });
+        </script>
       
     }
     <script>
@@ -101,101 +128,8 @@
                      statusbar: false
                 });
     </script>
-    <script>
-       function getUserData(){
-                let userId = $("#select-state").val();
-             console.log(userId);
-
-                     $.ajax({
-                        url: "/Services/CheckUserType",
-                        data:{"userId":userId},
-                        dataType: 'json',
-                        contentType: "application/json; charset=utf-8",
-                        success: function(result){
-                             console.log(result)
-
-                             if (result.error==false)
-                             {
-                                  $('#errorMessage').hide();
-                                  $('#errorMessage').empty();
-                                  $('#successMessage').empty();
-                                  $('#successMessage').show();
-                                  $('#successMessage').append(result.message);
-                                  
-                                     if (result.type==1)
-                                     {
-                                         $("#divEmployeesNumber").show();
-                                         $("#inHome").show();
-                                         $("#inCenter").show();
-                                     }
-                                     else
-                                     {
-                                         $("#divEmployeesNumber").hide();
-                                         $("#inHome").show();
-                                         $("#inCenter").hide();
-                                         document.getElementById('inCenterInput').checked = false;
-                                         $("#inputEmployeesNumber").val('0');
-                                     }
-                             }
-                                
-                              else
-                             {
-                                 
-                                 $('#successMessage').hide();
-                                 $('#successMessage').empty();
-                                 $('#errorMessage').empty();
-                                 $('#errorMessage').show();
-                                 $('#errorMessage').append(result.message);
-                                   $("#inCenter").hide();
-                                   $("#inHome").hide();
-                                   $("#divEmployeesNumber").hide();
-                                   document.getElementById('inCenterInput').checked = false;
-                                   document.getElementById('inHomeInput').checked = false;
-                                   $("#inputEmployeesNumber").val('0');
-                                   
-                             }
-
-                         },
-                        failure: function (response) {
-                            alert(response.responseText);
-                        },
-                        error: function (response) {
-                            alert(response.responseText);
-                        }
-                     });
-
-
-                 } 
-                 
-                 
-    </script>
-    <script>
-
-        function changeFinalPrice()
-        {
-            let price = $("#thePrice").val();
-            let discount = $("#theDiscount").val();
-                if (price=='' )
-                {
-                    $("#theFinalPrice").val('');
-                }
-                 if (discount== 0 || discount=='')
-                {
-                    $("#theFinalPrice").val(price);
-                }
-                else
-                {
-                    let finalPrice = price - (price * discount / 100);
-                    $("#theFinalPrice").val(finalPrice);
-                }
-            let finalPrice = price - (price * discount / 100);
-            $("#theFinalPrice").val(finalPrice);
-        }
-
-     
     
-    
-    </script>
+  
 
 
 }

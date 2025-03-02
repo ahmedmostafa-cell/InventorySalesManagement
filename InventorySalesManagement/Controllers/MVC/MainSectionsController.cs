@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventorySalesManagement.Controllers.MVC;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class MainSectionsController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;

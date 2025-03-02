@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventorySalesManagement.Controllers.MVC;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class DashboardController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;

@@ -15,36 +15,35 @@
 						</div>
 						<div class="card-body">
 
-							<form asp-controller="Account" asp-action="Login" method="post">
+                            <form id="loginForm">
+                                <div asp-validation-summary="ModelOnly" class="text-danger" style="text-align: center;"></div>
 
-								<div asp-validation-summary="ModelOnly" class="text-danger" style="text-align: center;"></div>
-								<div class="form-group">
-									<label asp-for="PhoneNumber" class="form-label text-dark"></label>
-									<input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" required="" />
-									<span asp-validation-for="PhoneNumber" class="text-danger"></span>
-								</div>
+                                <div class="form-group">
+                                    <label asp-for="PhoneNumber" class="form-label text-dark"></label>
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" required="" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
 
-								<div class="form-group">
-									<label asp-for="Password" class="form-label text-dark"></label>
-									<input asp-for="Password" class="form-control" placeholder="Password" required="" type="password" />
-									<span asp-validation-for="Password" class="text-danger"></span>
-								</div>
+                                <div class="form-group">
+                                    <label asp-for="Password" class="form-label text-dark"></label>
+                                    <input asp-for="Password" class="form-control" placeholder="Password" required="" type="password" />
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
 
-								<div class="form-group">
-									<label class="custom-control custom-checkbox">
-										@*<a asp-action="ForgotPassword" class="float-end small text-dark mt-1">I forgot password</a>*@
-										<input asp-for="IsPersist" class="custom-control-input">
-										<span class="custom-control-label text-dark">Remember me</span>
-									</label>
-								</div>
+                                <div class="form-group">
+                                    <label class="custom-control custom-checkbox">
+                                        <input asp-for="IsPersist" class="custom-control-input">
+                                        <span class="custom-control-label text-dark">Remember me</span>
+                                    </label>
+                                </div>
 
-								<div class="form-footer mt-2">
-									<input type="submit" value="SignIn" class="btn btn-primary btn-block">
-								</div>
-							</form>
-							@*  <div class="text-center text-dark mt-3 ">
-							<a asp-action="ForgotPassword" asp-controller="Account">Forgot Password</a>
-							</div>*@
+                                <div class="form-footer mt-2">
+                                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                                </div>
+                            </form>
+
+                            <!-- Display Error Message -->
+                            <div id="loginError" class="text-danger mt-2" style="display: none;"></div>
 
 
 						</div>
@@ -63,5 +62,41 @@
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $("#loginForm").submit(function (event) {
+                    event.preventDefault(); // Prevent traditional form submission
+
+                    var formData = {
+                        PhoneNumber: $("#PhoneNumber").val(),
+                        Password: $("#Password").val(),
+                        IsPersist: $("#IsPersist").is(":checked")
+                    };
+
+                    $.ajax({
+                        url: "/Account/Login",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            if (response.success) {
+                                // Store JWT token in localStorage or cookie
+                                localStorage.setItem("authToken", response.token);
+
+                                // Redirect to dashboard or homepage
+                                window.location.href = "/Dashboard/Index";
+                            } else {
+                                $("#loginError").text(response.message).show();
+                            }
+                        },
+                        error: function (xhr) {
+                            $("#loginError").text("Invalid login credentials.").show();
+                        }
+                    });
+                });
+            });
+        </script>
 	}
 }

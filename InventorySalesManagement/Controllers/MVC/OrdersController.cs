@@ -3,12 +3,14 @@ using InventorySalesManagement.Core.Entity.OrderServiceData;
 using InventorySalesManagement.Core.Entity.SectionsData;
 using InventorySalesManagement.Core.ModelView.OrdersModel;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySalesManagement.Controllers.MVC;
 
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class OrdersController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace InventorySalesManagement.Controllers.MVC;
 
 
-[Authorize]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class ServicesController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -64,18 +64,40 @@ public class ServicesController : Controller
         return View(new Service());
     }
 
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> Create(Service service)
+    //{
+    //    if (ModelState.IsValid)
+    //    {
+    //        await _unitOfWork.Services.AddAsync(service);
+    //        await _unitOfWork.SaveChangesAsync();
+    //        return RedirectToAction(nameof(Index));
+    //    }
+    //    ViewData["MainSectionId"] = new SelectList(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false && s.IsShow == true), "Id", "TitleAr", service.MainSectionId);
+    //    return View(service);
+    //}
+
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Service service)
+    public async Task<IActionResult> Create(Service model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await _unitOfWork.Services.AddAsync(service);
-            await _unitOfWork.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = false, message = "يرجى ملء جميع الحقول المطلوبة." });
         }
-        ViewData["MainSectionId"] = new SelectList(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false && s.IsShow == true), "Id", "TitleAr", service.MainSectionId);
-        return View(service);
+
+        try
+        {
+            // Save to database (example)
+            await _unitOfWork.Services.AddAsync(model);
+            await _unitOfWork.SaveChangesAsync();
+
+            return Json(new { success = true, message = "تم إنشاء الخدمة بنجاح!" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "حدث خطأ أثناء الحفظ: " + ex.Message });
+        }
     }
 
     // GET: Services/Edit/5
@@ -96,13 +118,46 @@ public class ServicesController : Controller
     }
 
 
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> Edit(int id, Service service)
+    //{
+    //    if (id != service.Id)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    if (ModelState.IsValid)
+    //    {
+    //        try
+    //        {
+    //            _unitOfWork.Services.Update(service);
+    //            await _unitOfWork.SaveChangesAsync();
+    //        }
+    //        catch (DbUpdateConcurrencyException)
+    //        {
+    //            if (!ServiceExists(service.Id))
+    //            {
+    //                return NotFound();
+    //            }
+    //            else
+    //            {
+    //                throw;
+    //            }
+    //        }
+    //        return RedirectToAction(nameof(Index));
+    //    }
+    //    ViewData["MainSectionId"] = new SelectList(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false && s.IsShow == true), "Id", "TitleAr", service.MainSectionId);
+    //    return View(service);
+    //}
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Service service)
     {
         if (id != service.Id)
         {
-            return NotFound();
+            return Json(new { success = false, message = "Service not found." });
         }
 
         if (ModelState.IsValid)
@@ -111,22 +166,25 @@ public class ServicesController : Controller
             {
                 _unitOfWork.Services.Update(service);
                 await _unitOfWork.SaveChangesAsync();
+
+                return Json(new { success = true, message = "تم تحديث الخدمة بنجاح!" });
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!ServiceExists(service.Id))
                 {
-                    return NotFound();
+                    return Json(new { success = false, message = "Service not found." });
                 }
                 else
                 {
-                    throw;
+                    return Json(new { success = false, message = "حدث خطأ أثناء حفظ البيانات." });
                 }
             }
-            return RedirectToAction(nameof(Index));
         }
-        ViewData["MainSectionId"] = new SelectList(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false && s.IsShow == true), "Id", "TitleAr", service.MainSectionId);
-        return View(service);
+
+        // If model validation fails, return errors
+        var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+        return Json(new { success = false, errors });
     }
 
     public async Task<IActionResult> Delete(int id)

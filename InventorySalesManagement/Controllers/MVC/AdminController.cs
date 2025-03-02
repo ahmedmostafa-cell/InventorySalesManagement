@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InventorySalesManagement.Controllers.MVC;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class AdminController : Controller
 {
 	private readonly IAccountService _accountService;
