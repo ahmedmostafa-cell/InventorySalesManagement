@@ -1,20 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using InventorySalesManagement.Core.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventorySalesManagement.Core.DTO.EntityDto;
 
 public class ServiceDto
 {
-    [Required(ErrorMessage = "اسم الخدمة بالعربي مطلوب")]
-    [Display(Name = "اسم الخدمة بالعربي")]
+    [Required(ErrorMessage = "اسم المنتج بالعربي مطلوب")]
+    [Display(Name = "اسم المنتج بالعربي")]
     public string TitleAr { get; set; }
 
-    [Required(ErrorMessage = "اسم الخدمة بالانجليزي مطلوب")]
-    [Display(Name = "اسم الخدمة بالانجليزي")]
+    [Required(ErrorMessage = "اسم المنتج بالانجليزي مطلوب")]
+    [Display(Name = "اسم المنتج بالانجليزي")]
     public string TitleEn { get; set; }
 
-    [Required(ErrorMessage = "وصف الخدمة مطلوب")]
-    [Display(Name = "وصف الخدمة ")]
+    [Required(ErrorMessage = "وصف المنتج مطلوب")]
+    [Display(Name = "وصف المنتج ")]
     public string Description { get; set; }
+
+    [Required(ErrorMessage = "الرصيد الحالي مطلوب")]
+    [Display(Name = "رصيد المنتج ")]
+    public int Qty { get; set; }
+
+    [Required(ErrorMessage = "نوع المنتج مطلوب")]
+    [Display(Name = "نوع المنتج ")]
+    public ProductType ProductType { get; set; }
 
 
     //----------------------------------------
@@ -24,8 +33,8 @@ public class ServiceDto
     public float Price { get; set; }
 
     //------------------------------------
-    [Display(Name = "القسم الرئيسي")]
-    [Required(ErrorMessage = "القسم الرئيسي مطلوب")]
+    [Display(Name = "الفئة الرئيسية")]
+    [Required(ErrorMessage = "الفئة الرئيسية مطلوبة")]
     public int MainSectionId { get; set; }
 
 }

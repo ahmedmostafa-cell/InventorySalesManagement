@@ -65,8 +65,9 @@ public class ServicesController : BaseApiController, IActionFilter
                          s.Id,
                          title = lang == "ar" ? s.TitleAr : s.TitleEn,
                          s.Description,
-                         s.ImgUrl,
                          s.Price,
+                         s.Qty,
+                         s.ProductType,
                          MainSection = new
                          {
                              s.MainSection.Id,
@@ -139,8 +140,9 @@ public class ServicesController : BaseApiController, IActionFilter
                 s.TitleAr,
                 s.TitleEn,
                 s.Description,
-                s.ImgUrl,
                 s.Price,
+                s.Qty,
+                s.ProductType,
                 MainSection = new
                 {
                     s.MainSection.Id,
@@ -212,6 +214,7 @@ public class ServicesController : BaseApiController, IActionFilter
             IsDeleted = false,
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now,
+            ProductType = serviceDto.ProductType,
         };
         try
         {
@@ -295,7 +298,7 @@ public class ServicesController : BaseApiController, IActionFilter
         service.MainSectionId = serviceDto.MainSectionId;
         service.UpdatedAt = DateTime.Now;
         service.IsDeleted = false;
-
+        service.ProductType = serviceDto.ProductType;
         _unitOfWork.Services.Update(service);
         await _unitOfWork.SaveChangesAsync();
 

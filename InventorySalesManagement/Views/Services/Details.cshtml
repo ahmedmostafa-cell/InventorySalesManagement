@@ -45,6 +45,25 @@
                     <dd class="col-sm-10">
                         @Html.DisplayFor(model => model.Price)
                     </dd>
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.Qty)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @Html.DisplayFor(model => model.Qty)
+                    </dd>
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.ProductType)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @if (Model.ProductType == ProductType.Stored)
+                        {
+                            <span>مخزني</span>
+                        }
+                        else if (Model.ProductType == ProductType.Service)
+                        {
+                            <span>خدمي</span>
+                        }
+                    </dd>
                   
                   
                    

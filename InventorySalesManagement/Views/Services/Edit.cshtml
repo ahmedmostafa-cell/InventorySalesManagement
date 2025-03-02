@@ -26,7 +26,6 @@
                     <input type="hidden" asp-for="IsDeleted" />
                     <input type="hidden" asp-for="UpdatedAt" />
                     <input type="hidden" asp-for="IsUpdated" />
-                    <input type="hidden" asp-for="ImgUrl" />
                     
                      
                    
@@ -60,9 +59,21 @@
                         <input id="thePrice" onchange="changeFinalPrice()" asp-for="Price" class="form-control"/>
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
-                  
-                  
-                   
+                    <div class="form-group">
+                        <label asp-for="Qty" class="control-label"></label>
+                        <input id="theQty" asp-for="Qty" class="form-control" />
+                        <span asp-validation-for="Qty" class="text-danger"></span>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label asp-for="ProductType" class="control-label"></label><br />
+
+                        <input type="radio" asp-for="ProductType" value="Stored" /> مخزن
+                        <input type="radio" asp-for="ProductType" value="Service" /> خدمة
+
+                        <span asp-validation-for="ProductType" class="text-danger"></span>
+                    </div>
                   
 
                    
