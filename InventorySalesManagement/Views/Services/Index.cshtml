@@ -1,5 +1,4 @@
-﻿@model IEnumerable<Service>
-
+﻿
 @{
     ViewData["Title"] = "كل الخدمات  ";
     Layout = "~/Views/Shared/_MainLayout.cshtml";
@@ -25,79 +24,18 @@
                 }
             </div>
             <div class="table-responsive" style="padding: 1.5rem; overflow-x: inherit;">
-                <table class="table table-striped table-hover" id="table_id">
+                <table class="table table-striped table-hover" id="servicesTable">
                     <thead>
                         <tr>
-
-                            <th onclick="sortTable(0)">
-                                &#9650;&#9660 @Html.DisplayNameFor(model => model.TitleAr)
-                            </th>
-                            <th onclick ="sortTable(0)">
-                                &#9650;&#9660 @Html.DisplayNameFor(model => model.MainSection)
-                            </th>
-                            <th onclick="sortTable(0)">
-                                &#9650;&#9660 @Html.DisplayNameFor(model => model.Qty)
-                            </th>
-                            <th onclick="sortTable(0)"> &#9650;&#9660 نوع المنتج</th>
-                            <th onclick="sortTable(0)">
-                                التحكم&#9650;&#9660 
-                            </th>
+                            <th>اسم الخدمة</th>
+                            <th>القسم الرئيسي</th>
+                            <th>الكمية</th>
+                            <th>نوع المنتج</th>
+                            <th>التحكم</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TitleAr)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.MainSection.TitleAr)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Qty)
-                                </td>
-                              
-                               
-                                    @if (item.ProductType == ProductType.Stored)
-                                    {
-                                    <td>
-                                        مخزني
-                                    </td>
-                                       
-                                    }
-                                    else
-                                    {
-                                    <td>
-                                        خدمي
-                                    </td>
-                                    }
-                                
-                               
-                              
-                                <td>
-                                    <div class="item-action dropdown">
-                                        <a href="javascript:void(0)" data-bs-toggle="dropdown" class="icon"><i class="fe fe-more-vertical fs-20 text-dark"></i></a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item btn btn-warning">تعديل</a>
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item btn btn-info">تفاصيل</a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" style="margin: 0.3rem" class="btn btn-danger dropdown-item" onclick="return confirm('هل أنت متأكد من الحذف ؟ ');">حذف </a>
-
-                                        </div>
-                                    </div>
-                                </td>
-
-
-
-
-
-
-
-                            </tr>
-                        }
-                    </tbody>
                 </table>
+
 
             </div>
         </div>
@@ -115,19 +53,51 @@
 
         <script>
             $(document).ready(function () {
-                $('#table_id').DataTable({
-                    paging: true,
-                    ordering: true,
-                    "pagingType": "simple_numbers",
-                    "lengthMenu": [5, 20, 75, 100],
-                    "language": {
-                        "search": "البحث"
+                $('#servicesTable').DataTable({
+                    "processing": true,
+                    "serverSide": false,
+                    "ajax": {
+                        "url": "/Services/GetServices",
+                        "type": "GET",
+                        "datatype": "json"
                     },
-                    columnDefs: [
-                        { targets: [4], orderable: false } // Disable sorting for the last column
-                    ]
+                    "columns": [
+                        { "data": "titleAr" },
+                        { "data": "mainSection" },
+                        { "data": "qty" },
+                        { "data": "productType" },
+                        {
+                            "data": "id",
+                            "render": function (data, type, row) {
+                                return `
+                                            <div class="item-action dropdown">
+                                                <a href="javascript:void(0)" data-bs-toggle="dropdown" class="icon">
+                                                    <i class="fe fe-more-vertical fs-20 text-dark"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a href="/Services/Edit/${data}" class="dropdown-item btn btn-warning">تعديل</a>
+                                                    <a href="/Services/Details/${data}" class="dropdown-item btn btn-info">تفاصيل</a>
+                                                    <a href="/Services/Delete/${data}" class="btn btn-danger dropdown-item" onclick="return confirm('هل أنت متأكد من الحذف ؟');">حذف</a>
+                                                </div>
+                                            </div>`;
+                            }
+                        }
+                    ],
+                    "language": {
+                        "search": "البحث",
+                        "lengthMenu": "عرض _MENU_ سجل لكل صفحة",
+                        "zeroRecords": "لا توجد نتائج مطابقة",
+                        "info": "عرض _START_ إلى _END_ من _TOTAL_ سجلات",
+                        "infoEmpty": "لا توجد بيانات متاحة",
+                        "infoFiltered": "(تصفية من إجمالي _MAX_ سجلات)",
+                        "paginate": {
+                            "first": "الأول",
+                            "last": "الأخير",
+                            "next": "التالي",
+                            "previous": "السابق"
+                        }
+                    }
                 });
-                $('#sortableTable').DataTable();
             });
         </script>
 

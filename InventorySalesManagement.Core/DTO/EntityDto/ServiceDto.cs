@@ -34,8 +34,6 @@ public class ServiceDto
     public float Price { get; set; }
 
     //------------------------------------
-    [Display(Name = "الفئة الرئيسية")]
-    [Required(ErrorMessage = "الفئة الرئيسية مطلوبة")]
     public int MainSectionId { get; set; }
 
 }

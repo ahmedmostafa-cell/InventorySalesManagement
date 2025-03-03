@@ -1,87 +1,70 @@
-﻿@model Service
+﻿@model int
 
 @{
     ViewData["Title"] = "التفاصيل";
     Layout = "~/Views/Shared/_MainLayout.cshtml";
 }
-<div class="row">						
+<div class="row">
     <div class="col-xl-8">
         <div class="card m-b-20">
             <div class="card-header">
                 <h3 class="card-title">التفاصيل  </h3>
             </div>
-            <div class="card-body mb-0">
-                    
-                <dl class="row">
-                  
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.MainSection)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.MainSection.TitleAr)
-                    </dd>
-
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.TitleAr)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.TitleAr)
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.TitleEn)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.TitleEn)
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Description)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.Raw(Model.Description)
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Price)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.Price)
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Qty)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.Qty)
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.ProductType)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @if (Model.ProductType == ProductType.Stored)
-                        {
-                            <span>مخزني</span>
-                        }
-                        else if (Model.ProductType == ProductType.Service)
-                        {
-                            <span>خدمي</span>
-                        }
-                    </dd>
-                  
-                  
-                   
-                  
-                   
-                  
-
-
-
-
-                  
-                </dl>
+            <div class="card-body mb-0" id="serviceDetails">
+                <p class="text-center">جارٍ تحميل البيانات...</p>
             </div>
         </div>
     </div>
+    <input type="hidden" id="currentAction" value="@ViewContext.RouteData.Values["action"]?.ToString()" />
+
 </div>
 
- <div style="margin-bottom: 4rem;text-align: end;">
-    <a asp-action="Edit" asp-route-id="@Model.Id"class="btn btn-warning">تعديل</a> 
-    <a asp-action="Index"class="btn btn-secondary">العودة للقائمة</a>
+<div style="margin-bottom: 4rem;text-align: end;">
+    <a id="editBtn" class="btn btn-warning">تعديل</a>
+    <a asp-action="Index" class="btn btn-secondary">العودة للقائمة</a>
 </div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var serviceId = @Model; // Now Model is always available
+
+            $.ajax({
+                url: '/Services/GetServiceDetails/' + serviceId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var html = `<dl class="row">
+                                <dt class="col-sm-2">القسم الرئيسي</dt>
+                                <dd class="col-sm-10">${data.mainSectionTitle}</dd>
+
+                                <dt class="col-sm-2">العنوان بالعربية</dt>
+                                <dd class="col-sm-10">${data.titleAr}</dd>
+
+                                <dt class="col-sm-2">العنوان بالإنجليزية</dt>
+                                <dd class="col-sm-10">${data.titleEn}</dd>
+
+                                <dt class="col-sm-2">الوصف</dt>
+                                <dd class="col-sm-10">${data.description}</dd>
+
+                                <dt class="col-sm-2">السعر</dt>
+                                <dd class="col-sm-10">${data.price}</dd>
+
+                                <dt class="col-sm-2">الكمية</dt>
+                                <dd class="col-sm-10">${data.qty}</dd>
+
+                                <dt class="col-sm-2">نوع المنتج</dt>
+                                <dd class="col-sm-10">${data.productType == "Stored" ? "مخزني" : "خدمي"}</dd>
+                            </dl>`;
+
+                    $("#serviceDetails").html(html);
+                    $("#editBtn").attr("href", "/Services/Edit/" + data.id);
+                },
+                error: function () {
+                    $("#serviceDetails").html('<p class="text-danger text-center">فشل تحميل البيانات.</p>');
+                }
+            });
+        });
+    </script>
+}

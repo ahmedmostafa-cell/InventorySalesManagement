@@ -35,6 +35,11 @@ public class MainSectionsController : Controller
         return View(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false));
     }
 
+    public async Task<IActionResult> GetMainSections()
+    {
+        var sections = await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false);
+        return Json(sections);
+    }
     // GET: MainSections/Details/5
     public async Task<IActionResult> Details(int? id)
     {
