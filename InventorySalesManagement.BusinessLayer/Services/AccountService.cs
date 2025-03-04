@@ -12,7 +12,6 @@ using System.Security.Claims;
 using System.Text;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using InventorySalesManagement.Core.ModelView.AuthViewModel.UpdateData;
 
 namespace InventorySalesManagement.BusinessLayer.Services;
@@ -70,48 +69,6 @@ public class AccountService : IAccountService
         }
     }
 
-
-
-    // ------------------------------------------------------------------------------------------------------------------
-    public async Task<AuthModel> RegisterCenterAsync(RegisterCenterVm model)
-    {
-        if (await _userManager.FindByEmailAsync(model.Email) is not null)
-            return new AuthModel { Message = "this email is already Exist!", ArMessage = "هذا البريد الالكتروني مستخدم من قبل", ErrorCode = (int)Errors.ThisEmailAlreadyExist };
-
-        if (await Task.Run(() => _userManager.Users.Any(item => item.PhoneNumber == model.PhoneNumber)))
-            return new AuthModel { Message = "this phone number is already Exist!", ArMessage = "هذا الرقم المحمول مستخدم من قبل", ErrorCode = (int)Errors.ThisPhoneNumberAlreadyExist };
-
-        var user = new ApplicationUser
-        {
-            FullName = model.FullName,
-            UserName = model.PhoneNumber,
-            NormalizedUserName = model.PhoneNumber,
-            PhoneNumber = model.PhoneNumber,
-            Email = model.Email,
-            Status = true,
-            PhoneNumberConfirmed = true,
-            UserType = UserType.Admin,
-            IsAdmin = false,
-            IsApproved = false,
-        };
-        var result = await _userManager.CreateAsync(user, model.Password);
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Aggregate(string.Empty, (current, error) => current + $"{error.Description},");
-            return new AuthModel { Message = errors, ArMessage = errors, ErrorCode = (int)Errors.ErrorWithCreateAccount };
-        }
-        else 
-        {
-            return new AuthModel
-            {
-                Message = "Your request is under review and we will contact you soon",
-                ArMessage = "جاري مراجعة الطلب وسيتم التواصل معك قريبا",};
-
-        }
-
-    }
-
-    //-------------------------------------------------------------------------------------------------------------------------
     public async Task<AuthModel> LoginAsync(LoginModel model)
     {
         var user = await _userManager.FindByNameAsync(model.PhoneNumber);
@@ -119,10 +76,6 @@ public class AccountService : IAccountService
             return new AuthModel { Message = "Your phone number is not Exist!", ArMessage = "رقم الهاتف غير مسجل", ErrorCode = (int)Errors.ThisPhoneNumberNotExist };
         if (!await _userManager.CheckPasswordAsync(user, model.Password))
             return new AuthModel { Message = "Password is not correct!", ArMessage = "كلمة المرور غير صحيحة", ErrorCode = (int)Errors.TheUsernameOrPasswordIsIncorrect };
-        if (!user.Status)
-            return new AuthModel { Message = "Your account has been suspended!", ArMessage = "حسابك تم إيقافة", ErrorCode = (int)Errors.UserIsBlocked };
-        if (!user.IsApproved)
-            return new AuthModel { Message = "Your account has not been approved!", ArMessage = "حسابك لم يتم الموافقة عليه", ErrorCode = (int)Errors.UserIsNotApproved };
 
         return new AuthModel
         {
@@ -151,7 +104,6 @@ public class AccountService : IAccountService
         return true;
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------
     public async Task<AuthModel> GetUserInfo(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -181,57 +133,56 @@ public class AccountService : IAccountService
 			return new AuthModel { Message = "this phone number is already Exist!", ArMessage = "هذا الرقم المحمول مستخدم من قبل", ErrorCode = (int)Errors.ThisPhoneNumberAlreadyExist };
 
 
+        var user = new ApplicationUser
+        {
+            FullName = model.FullName,
+            UserName = model.PhoneNumber,
+            NormalizedUserName = model.PhoneNumber,
+            PhoneNumber = model.PhoneNumber,
+            Email = model.Email,
+            Status = true,
+            PhoneNumberConfirmed = true,
+            UserType = UserType.Admin,
+            IsAdmin = true,
+            IsApproved = true
+        };
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (!result.Succeeded)
+        {
+            var errors =
+                result.Errors.Aggregate(string.Empty, (current, error) => current + $"{error.Description},");
+            return new AuthModel { Message = errors, ArMessage = errors, ErrorCode = (int)Errors.ErrorWithCreateAccount };
+        }
+        else
+        {
+            return new AuthModel { Message = "Registered successfully", ArMessage = "تم تسجيل الدخول بنجاح" };
+        }
+    }
+
+    public async Task<AuthModel> UpdateAdminProfile(string userId, UpdateAdminMv model)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return new AuthModel { ErrorCode = (int)Errors.TheUserNotExistOrDeleted, Message = "User not found!", ArMessage = "المستخدم غير موجود" };
+        if (await Task.Run(() => _userManager.Users.Any(item => (item.PhoneNumber == model.PhoneNumber) && (item.Id != userId))))
+            return new AuthModel { Message = "this phone number is already Exist!", ArMessage = "هذا الرقم المحمول مستخدم من قبل" };
+        if (await Task.Run(() => _userManager.Users.Any(item => (item.Email == model.Email) && (item.Id != userId))))
+            return new AuthModel { Message = "this email is already Exist!", ArMessage = "هذا البريد الالكتروني مستخدم من قبل" };
+
+
+
+
+        user.FullName = model.FullName;
+        user.PhoneNumber = model.PhoneNumber;
+        user.UserName = model.PhoneNumber;
+        user.NormalizedUserName = model.PhoneNumber;
+        user.Email = model.Email;
+        user.NormalizedEmail = model.Email;
+
+
+
+        await _userManager.UpdateAsync(user);
 		
-
-		var user = new ApplicationUser
-		{
-			FullName = model.FullName,
-			UserName = model.PhoneNumber,
-			NormalizedUserName = model.PhoneNumber,
-			PhoneNumber = model.PhoneNumber,
-			Email = model.Email,
-			Status = true,
-			PhoneNumberConfirmed = true,
-			UserType = UserType.Admin,
-			IsAdmin = true,
-			IsApproved = true
-		};
-		var result = await _userManager.CreateAsync(user, model.Password);
-		if (!result.Succeeded)
-		{
-			var errors =
-				result.Errors.Aggregate(string.Empty, (current, error) => current + $"{error.Description},");
-			return new AuthModel { Message = errors, ArMessage = errors, ErrorCode = (int)Errors.ErrorWithCreateAccount };
-		}
-		else
-		{
-			return new AuthModel { Message = "Registered successfully", ArMessage = "تم تسجيل الدخول بنجاح"};
-		}
-	}
-
-	public async Task<AuthModel> UpdateAdminProfile(string userId, UpdateAdminMv model)
-	{
-		var user = await _userManager.FindByIdAsync(userId);
-		if (user is null)
-			return new AuthModel { ErrorCode = (int)Errors.TheUserNotExistOrDeleted, Message = "User not found!", ArMessage = "المستخدم غير موجود" };
-		if (await Task.Run(() => _userManager.Users.Any(item => (item.PhoneNumber == model.PhoneNumber) && (item.Id != userId))))
-			return new AuthModel { Message = "this phone number is already Exist!", ArMessage = "هذا الرقم المحمول مستخدم من قبل" };
-		if (await Task.Run(() => _userManager.Users.Any(item => (item.Email == model.Email) && (item.Id != userId))))
-			return new AuthModel { Message = "this email is already Exist!", ArMessage = "هذا البريد الالكتروني مستخدم من قبل" };
-
-		
-
-
-		user.FullName = model.FullName;
-		user.PhoneNumber = model.PhoneNumber;
-		user.UserName = model.PhoneNumber;
-		user.NormalizedUserName = model.PhoneNumber;
-		user.Email = model.Email;
-		user.NormalizedEmail = model.Email;
-
-
-		await _userManager.UpdateAsync(user);
-
 		var jwtSecurityToken = await GenerateJwtToken(user);
 		var rolesList = await _userManager.GetRolesAsync(user);
 
@@ -249,11 +200,8 @@ public class AccountService : IAccountService
 			Roles = rolesList.ToList(),
 			Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
 		};
-		return result;
-	}
-
-
-	//------------------------------------------------------------------------------------------------------------
+        return result;
+    }
 
 	#region create and validate JWT token
 
