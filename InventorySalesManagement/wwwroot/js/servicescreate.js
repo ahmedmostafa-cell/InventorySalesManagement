@@ -1,6 +1,12 @@
 ﻿
 $(document).ready(function () {
+    let token = $('input[name="__RequestVerificationToken"]').val();
 
+    $.ajaxSetup({
+        headers: {
+            "RequestVerificationToken": token
+        }
+    });
     $.ajax({
         url: getMainSectionsUrl, // Replace with actual controller name
         type: "GET",
@@ -83,7 +89,10 @@ $(document).ready(function () {
             url: createServiceUrl, // Change to your actual controller
             type: "POST",
             data: formData,
-            contentType: false,
+            contentType: false, 
+            headers: {
+                "RequestVerificationToken": token // ✅ Correct header name
+            },
             processData: false,
             success: function (response) {
                 if (response.success) {

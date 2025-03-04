@@ -1,5 +1,11 @@
 ﻿
 $(document).ready(function () {
+    let token = $('input[name="__RequestVerificationToken"]').val();
+    $.ajaxSetup({
+        headers: {
+            "RequestVerificationToken": token
+        }
+    });
     $('#table_id').DataTable({
         paging: true,
         ordering: true,
@@ -12,6 +18,8 @@ $(document).ready(function () {
 });
 // تفاصيل الفاتورة
 $(document).on("click", ".view-details", function () {
+    event.preventDefault(); // Prevents form submission
+
     var invoiceId = $(this).data("id");
 
 
@@ -19,6 +27,9 @@ $(document).on("click", ".view-details", function () {
         url: '/Orders/Details', // Updated to hit the Create endpoint
         type: 'POST',
         contentType: 'application/json', // Ensure the correct content type
+        headers: {
+            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+        },
         data: JSON.stringify(invoiceId), // Convert JS object to JSON string
         success: function (response) {
             if (response.success) {

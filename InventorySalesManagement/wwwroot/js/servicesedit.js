@@ -1,4 +1,11 @@
 ﻿$(document).ready(function () {
+    let token = $('input[name="__RequestVerificationToken"]').val();
+
+    $.ajaxSetup({
+        headers: {
+            "RequestVerificationToken": token
+        }
+    });
     $("#editForm").submit(function (event) {
         event.preventDefault(); // Prevent default form submission
         var isValid = true; // Validation flag
@@ -66,6 +73,9 @@
             data: formData,
             processData: false,
             contentType: false,
+            headers: {
+                "RequestVerificationToken": token // ✅ Correct header name
+            },
             success: function (response) {
                 if (response.success) {
                     $('#successMessage').show().text(response.message);

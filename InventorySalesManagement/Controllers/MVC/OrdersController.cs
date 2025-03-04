@@ -38,6 +38,7 @@ public class OrdersController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken] // Ensure the token is validated
     public async Task<IActionResult> Create([FromBody] OrderViewModel model)
     {
         if (model.OrderServices == null || model.OrderServices.Count == 0)
@@ -97,6 +98,7 @@ public class OrdersController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken] // Ensure the token is validated
     public async Task<JsonResult> Details([FromBody] string invoiceId)
     {
         if (string.IsNullOrWhiteSpace(invoiceId))

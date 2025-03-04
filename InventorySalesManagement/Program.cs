@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMvc(o => o.EnableEndpointRouting = false);
 builder.Services.AddDistributedMemoryCache();

@@ -1,7 +1,12 @@
 ﻿
 $(document).ready(function () {
     let orderItems = [];
-
+    let token = $('input[name="__RequestVerificationToken"]').val();
+    $.ajaxSetup({
+        headers: {
+            "RequestVerificationToken": token
+        }
+    });
     // Update price and total when selecting a service
     $("#serviceDropdown").change(function () {
         let price = parseFloat($("#serviceDropdown option:selected").attr("data-price"));
@@ -19,6 +24,8 @@ $(document).ready(function () {
 
     // Add service to the table
     $("#addServiceBtn").click(function () {
+        event.preventDefault(); // Prevents form submission
+
         let serviceId = $("#serviceDropdown").val();
         let serviceName = $("#serviceDropdown option:selected").text();
         let price = parseFloat($("#servicePrice").val());
@@ -92,6 +99,9 @@ $(document).ready(function () {
             url: "/Orders/Create",
             method: "POST",
             contentType: "application/json",
+            headers: {
+                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+            },
             data: JSON.stringify(orderData),
             success: function (response) {
                 if (response.success) {

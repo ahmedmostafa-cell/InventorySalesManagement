@@ -1,4 +1,10 @@
 ﻿$(document).ready(function () {
+    let token = $('input[name="__RequestVerificationToken"]').val();
+    $.ajaxSetup({
+        headers: {
+            "RequestVerificationToken": token
+        }
+    });
     var table = $('#servicesTable').DataTable({
         "processing": true,
         "serverSide": false,
@@ -49,6 +55,9 @@
             $.ajax({
                 url: "/Services/Delete/" + id,
                 type: "DELETE",
+                headers: {
+                    "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                },
                 success: function (response) {
                     alert(response.message);
                     table.ajax.reload(null, false); // Reload table data without resetting pagination

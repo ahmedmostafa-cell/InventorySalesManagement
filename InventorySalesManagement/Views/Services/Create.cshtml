@@ -19,7 +19,7 @@
             <div class="card-body mb-0">
                 <form id="createServiceForm" class="form-horizontal" asp-action="Create" enctype="multipart/form-data" runat="server">
                     <div asp-validation-summary="All" style="margin-bottom: 2rem; text-align: center;" class="text-danger"></div>
-
+                    @Html.AntiForgeryToken()
                     <div class="form-group">
                         <label for="MainSectionId" class="control-label">القسم الرئيسي</label>
                         <select id="MainSectionId" name="MainSectionId" class="form-control required-field" asp-items="ViewBag.MainSectionId">

@@ -96,6 +96,7 @@ public class ServicesController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken] // Ensure the token is validated
     public async Task<IActionResult> Create(ServiceDto serviceDto)
     {
         if (!ModelState.IsValid)
@@ -133,6 +134,7 @@ public class ServicesController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken] // Ensure the token is validated
     public async Task<IActionResult> Edit(int id, ServiceDto service)
     {
 
@@ -175,6 +177,7 @@ public class ServicesController : Controller
     }
 
     [HttpDelete]
+    [ValidateAntiForgeryToken] // Ensure the token is validated
     public async Task<IActionResult> Delete(int id)
     {
         if (_unitOfWork.Services == null)

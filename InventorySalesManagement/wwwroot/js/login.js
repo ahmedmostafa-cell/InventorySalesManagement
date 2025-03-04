@@ -1,5 +1,11 @@
 ﻿
 $(document).ready(function () {
+    let token = $('input[name="__RequestVerificationToken"]').val();
+    $.ajaxSetup({
+        headers: {
+            "RequestVerificationToken": token
+        }
+    });
     $("#loginForm").submit(function (event) {
         event.preventDefault(); // Prevent traditional form submission
 
@@ -13,6 +19,9 @@ $(document).ready(function () {
             url: "/Account/Login",
             type: "POST",
             contentType: "application/json",
+            headers: {
+                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+            },
             data: JSON.stringify(formData),
             success: function (response) {
                 if (response.success) {

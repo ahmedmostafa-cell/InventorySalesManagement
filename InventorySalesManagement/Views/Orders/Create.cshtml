@@ -5,37 +5,42 @@
     Layout = "~/Views/Shared/_MainLayout.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <label>الخدمة:</label>
-        <select id="serviceDropdown" class="form-control">
-            <option value="">اختر الخدمة</option>
-            @foreach (var service in Model.Services)
-            {
-                <option value="@service.Id" data-price="@service.Price">@service.TitleAr</option>
-            }
-        </select>
-    </div>
+@using (Html.BeginForm("", "", FormMethod.Post, new { id = "orderForm" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-4">
+            <label>الخدمة:</label>
+            <select id="serviceDropdown" class="form-control">
+                <option value="">اختر الخدمة</option>
+                @foreach (var service in Model.Services)
+                {
+                    <option value="@service.Id" data-price="@service.Price">@service.TitleAr</option>
+                }
+            </select>
+        </div>
 
-    <div class="col-md-2">
-        <label>السعر:</label>
-        <input type="text" id="servicePrice" class="form-control" disabled>
-    </div>
+        <div class="col-md-2">
+            <label>السعر:</label>
+            <input type="text" id="servicePrice" class="form-control" disabled>
+        </div>
 
-    <div class="col-md-2">
-        <label>الكمية:</label>
-        <input type="number" id="serviceQty" class="form-control" min="1" value="1">
-    </div>
+        <div class="col-md-2">
+            <label>الكمية:</label>
+            <input type="number" id="serviceQty" class="form-control" min="1" value="1">
+        </div>
 
-    <div class="col-md-2">
-        <label>الإجمالي:</label>
-        <input type="text" id="serviceTotal" class="form-control" disabled>
-    </div>
+        <div class="col-md-2">
+            <label>الإجمالي:</label>
+            <input type="text" id="serviceTotal" class="form-control" disabled>
+        </div>
 
-    <div class="col-md-2">
-        <button id="addServiceBtn" class="btn btn-primary mt-4">إضافة</button>
+        <div class="col-md-2">
+            <button id="addServiceBtn" class="btn btn-primary mt-4">إضافة</button>
+        </div>
     </div>
-</div>
+}
+
 
 <!-- Table to show added services -->
 <table id="orderTable" class="table table-bordered mt-4">
