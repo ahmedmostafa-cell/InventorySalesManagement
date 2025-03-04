@@ -46,8 +46,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return await Context.Set<T>().FindAsync(id);
     }
 
-    //-------------------------------------------------------------------------------------------
-
     public T Find(Expression<Func<T, bool>> criteria, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool isNoTracking = false)
     {
         IQueryable<T> query = Context.Set<T>();
