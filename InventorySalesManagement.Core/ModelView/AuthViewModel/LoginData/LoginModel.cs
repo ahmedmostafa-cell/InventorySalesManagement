@@ -6,7 +6,7 @@ public class LoginModel
 {
 
     [Required(ErrorMessage = "يجب أدخال اسم المستخدم ")]
-    [Display(Name = "Phone Number")]
+    [Display(Name = "User Name")]
     public string PhoneNumber { get; set; }
 
     [Required(ErrorMessage = "يجب أدخال كلمة السر ")]
