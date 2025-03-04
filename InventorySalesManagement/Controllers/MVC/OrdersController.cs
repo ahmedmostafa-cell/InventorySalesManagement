@@ -1,11 +1,9 @@
 ﻿using InventorySalesManagement.Core.Entity.OrderData;
 using InventorySalesManagement.Core.Entity.OrderServiceData;
-using InventorySalesManagement.Core.Entity.SectionsData;
 using InventorySalesManagement.Core.ModelView.OrdersModel;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySalesManagement.Controllers.MVC;
@@ -20,11 +18,11 @@ public class OrdersController : Controller
         _unitOfWork = unitOfWork;
     }
 
-    // GET: Orders
     public async Task<IActionResult> Index()
     {
         var applicationContext =
             await _unitOfWork.Orders.FindAllAsync(s => s.IsDeleted == false );
+
         return View(applicationContext);
     }
 
@@ -34,6 +32,7 @@ public class OrdersController : Controller
         {
             Services = await _unitOfWork.Services.FindAllAsync(s => s.IsDeleted == false, include: s => s.Include(service => service.MainSection))
         };
+
         return View(model);
     }
 
@@ -45,13 +44,12 @@ public class OrdersController : Controller
             return BadRequest("لا يوجد خدمات مضافة للطلب.");
         }
 
-        // Calculate total order price
         float totalOrderPrice = model.OrderServices.Sum(os => os.Quantity * os.Price);
         var order = new Order
         {
             OrderNumber = "ORD-" + new Random().Next(1000, 9999),
             CreatedOn = DateTime.Now,
-            Total = totalOrderPrice, // Set total price
+            Total = totalOrderPrice,
             OrderServices = model.OrderServices.Select(os => new OrderService
             {
                 ServiceId = os.ServiceId,
@@ -61,17 +59,18 @@ public class OrdersController : Controller
         };
 
         _unitOfWork.Orders.Add(order);
+
         _unitOfWork.SaveChanges();
+
         return Json(new { success = true });
     }
 
     [HttpGet]
     public IActionResult GetInvoiceDetails(int id)
     {
-        var invoiceDetails = _unitOfWork.Orders // Adjust with your actual data source
+        var invoiceDetails = _unitOfWork.Orders 
             .GetById(id);
           
-
         return Json(invoiceDetails);
     }
 
@@ -86,7 +85,7 @@ public class OrdersController : Controller
         var orderDetails = await _unitOfWork.Orders.FindAllAsync(
             s => s.Id == int.Parse(invoiceId),
             include: s => s.Include(order => order.OrderServices)
-                           .ThenInclude(orderService => orderService.Service) // ✅ Include Service
+                           .ThenInclude(orderService => orderService.Service) 
         );
 
         if (orderDetails == null || !orderDetails.Any())
@@ -94,7 +93,8 @@ public class OrdersController : Controller
             return Json(new { success = false, message = "لم يتم العثور على الفاتورة." });
         }
 
-        var order = orderDetails.FirstOrDefault(); // Assuming invoiceId is unique
+        var order = orderDetails.FirstOrDefault(); 
+
         var response = new
         {
             success = true,
@@ -106,7 +106,7 @@ public class OrdersController : Controller
             {
                 id = os.Id,
                 serviceId = os.ServiceId,
-                serviceName = os.Service?.TitleAr, // ✅ Get service name
+                serviceName = os.Service?.TitleAr, 
                 quantity = os.Quantity,
                 unitPrice = os.Price,
                 totalPrice = os.Quantity * os.Price

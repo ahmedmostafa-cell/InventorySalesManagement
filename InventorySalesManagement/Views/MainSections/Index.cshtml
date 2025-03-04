@@ -32,11 +32,6 @@
                         <th>
                             @Html.DisplayNameFor(model => model.TitleAr)
                         </th>
-                      
-                     
-                      
-                   
-                      
                         <th>
                            التحكم 
                         </th>
@@ -49,10 +44,6 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.TitleAr)
                             </td>
-                           
-                           
-                            
-                           
                             <td>   
                                 <div class="item-action dropdown">
                                     <a href="javascript:void(0)" data-bs-toggle="dropdown" class="icon"><i class="fe fe-more-vertical fs-20 text-dark"></i></a>
@@ -61,15 +52,9 @@
                                         <a  asp-action="Edit" asp-route-id="@item.Id"class="dropdown-item btn btn-warning">تعديل</a>
                                         <a  asp-action="Details" asp-route-id="@item.Id"class="dropdown-item btn btn-info">تفاصيل</a>
                                         <a asp-action="Delete" asp-route-id="@item.Id" style="margin: 0.3rem" class="btn btn-danger dropdown-item" onclick="return confirm('هل أنت متأكد من الحذف ؟ ');">حذف </a>
-                                       
-                                     
                                     </div>
                                 </div>
                             </td>
-                            
-
-
-                       
                         </tr>
                     }
                     </tbody>

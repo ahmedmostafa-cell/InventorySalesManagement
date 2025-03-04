@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 
 namespace InventorySalesManagement.Extensions;
 
@@ -36,6 +35,7 @@ public static class SwaggerServiceExtensions
                 }
             });
         });
+
         return services;
     }
 

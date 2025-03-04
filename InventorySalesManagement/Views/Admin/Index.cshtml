@@ -31,7 +31,6 @@
                         <th> الاسم بالكامل  </th>
                         <th> رقم الهاتف  </th>
                         <th> البريد الالكتروني  </th>
-                        <th> التحكم </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -48,20 +47,7 @@
                                 @Html.DisplayFor(modelItem => item.Email)
                             </td>
                                    
-                            <td>
-                                
-                                <div class="item-action dropdown">
-                                    <a href="javascript:void(0)" data-bs-toggle="dropdown" class="icon"><i class="fe fe-more-vertical fs-20 text-dark"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-								        <a asp-action="Reject" asp-route-id="@item.Id" style="margin: 0.3rem" class="btn btn-danger dropdown-item" onclick="return confirm('هل أنت متأكد من مسح المستخدم؟ ');"> مسح المستخدم </a>				
-                                        <a  asp-action="Edit" asp-route-id="@item.Id"class="dropdown-item btn btn-warning">تعديل</a>
-                                        <a  asp-action="Details" asp-route-id="@item.Id"class="dropdown-item btn btn-info">تفاصيل</a>                                       			
-                                    </div>
-                                </div>
-                             
-
-
-                            </td>
+                            
                         </tr>
                     }
                     </tbody>
@@ -74,21 +60,7 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <script>
-         $(document).ready( function () {
-                $('#table_id').DataTable( {
-                     paging: true,
-                     ordering:  true,
-                     "pagingType": "simple_numbers",
-                     "lengthMenu": [ 5, 20, 75, 100 ] ,
-                     "oLanguage": {
-                                   "sSearch": "البحث"
-                                  }
-                } );
-        } );
- 
 
-    </script>
+    <script src="~/js/adminindex"></script>
 }
 

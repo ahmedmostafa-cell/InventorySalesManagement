@@ -10,19 +10,10 @@ public class HomeController : Controller
     {
         _unitOfWork = unitOfWork;
     }
-    //------------------------------------------------------------------------------------
+
     public IActionResult Index()
     {
-
         return View();
     }
-
-
-
-
-
-
-    //----------------------------------------------------------
-
 
 }

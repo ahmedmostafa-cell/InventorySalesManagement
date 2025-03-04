@@ -1,5 +1,4 @@
 ﻿using InventorySalesManagement.Core.DTO;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 
@@ -10,6 +9,7 @@ public class ExceptionMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
     private readonly IHostEnvironment _env;
+
     public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
     {
         _env = env;
@@ -19,7 +19,6 @@ public class ExceptionMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        // var endpoint = context.GetEndpoint(); // endpoint != null && 
         bool isApi = context.Request.Path.StartsWithSegments("/api");
         if (isApi)
         {

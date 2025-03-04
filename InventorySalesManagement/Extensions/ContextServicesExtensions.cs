@@ -1,7 +1,6 @@
 ﻿using InventorySalesManagement.Core;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using InventorySalesManagement.RepositoryLayer.Repositories;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 

@@ -22,14 +22,13 @@ public class MainSectionsController : Controller
         _userManager = userManager;
 
     }
+
     public override void OnActionExecuting(ActionExecutingContext context)
     {
         var userId = _userManager.GetUserId(User);
         _user = _unitOfWork.Users.Find(s => s.Id == userId);
     }
 
-    //-------------------------------------------------------------------------------------------------------------
-    // GET: MainSections
     public async Task<IActionResult> Index()
     {
         return View(await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false));
@@ -40,7 +39,7 @@ public class MainSectionsController : Controller
         var sections = await _unitOfWork.MainSections.FindAllAsync(s => s.IsDeleted == false);
         return Json(sections);
     }
-    // GET: MainSections/Details/5
+
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null || _unitOfWork.MainSections == null)
@@ -50,6 +49,7 @@ public class MainSectionsController : Controller
 
         var mainSection = await _unitOfWork.MainSections
             .FindAsync(m => m.Id == id && m.IsDeleted == false);
+
         if (mainSection == null)
         {
             return NotFound();
@@ -58,12 +58,10 @@ public class MainSectionsController : Controller
         return View(mainSection);
     }
 
-    // GET: MainSections/Create
     public IActionResult Create()
     {
         return View();
     }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -71,13 +69,13 @@ public class MainSectionsController : Controller
     {
         if (!ModelState.IsValid) return View(mainSection);
        
-
         await _unitOfWork.MainSections.AddAsync(mainSection);
+
         await _unitOfWork.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: MainSections/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null || _unitOfWork.MainSections == null)
@@ -87,10 +85,12 @@ public class MainSectionsController : Controller
 
         var mainSection = await _unitOfWork.MainSections
             .FindAsync(m => m.Id == id && m.IsDeleted == false);
+
         if (mainSection == null)
         {
             return NotFound();
         }
+
         return View(mainSection);
     }
 
@@ -107,8 +107,6 @@ public class MainSectionsController : Controller
         if (!ModelState.IsValid) return View(mainSection);
         try
         {
-           
-          
             _unitOfWork.MainSections.Update(mainSection);
             await _unitOfWork.SaveChangesAsync();
         }
@@ -123,6 +121,7 @@ public class MainSectionsController : Controller
                 throw;
             }
         }
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -135,6 +134,7 @@ public class MainSectionsController : Controller
         var mainSection = await _unitOfWork.MainSections
             .FindByQuery(
                 criteria: s => s.Id == id && s.IsDeleted == false).FirstOrDefaultAsync();
+
         if (mainSection != null)
         {
             mainSection.IsDeleted = true;
@@ -143,81 +143,6 @@ public class MainSectionsController : Controller
             _unitOfWork.MainSections.Update(mainSection);
         }
 
-        await _unitOfWork.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Show(int? id)
-    {
-        if (id == null || _unitOfWork.MainSections == null)
-        {
-            return NotFound();
-        }
-
-        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
-        if (mainSections == null)
-        {
-            return NotFound();
-        }
-        mainSections.IsShow = true;
-        _unitOfWork.MainSections.Update(mainSections);
-        await _unitOfWork.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Hide(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
-        if (mainSections == null)
-        {
-            return NotFound();
-        }
-        mainSections.IsShow = false;
-        _unitOfWork.MainSections.Update(mainSections);
-        await _unitOfWork.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Featured(int? id)
-    {
-        if (id == null || _unitOfWork.MainSections == null)
-        {
-            return NotFound();
-        }
-
-        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
-        if (mainSections == null)
-        {
-            return NotFound();
-        }
-        mainSections.IsFeatured = true;
-        _unitOfWork.MainSections.Update(mainSections);
-        await _unitOfWork.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> NotFeatured(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var mainSections = await _unitOfWork.MainSections.FindAsync(m => m.Id == id);
-        if (mainSections == null)
-        {
-            return NotFound();
-        }
-        mainSections.IsFeatured = false;
-        _unitOfWork.MainSections.Update(mainSections);
         await _unitOfWork.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));

@@ -26,15 +26,13 @@ public class ServicesController : Controller
         _userManager = userManager;
 
     }
+
     public override void OnActionExecuting(ActionExecutingContext context)
     {
         var userId = _userManager.GetUserId(User);
         _user = _unitOfWork.Users.Find(s => s.Id == userId);
     }
 
-    //---------------------------------------------------------------------------------------------
-
-    // GET: Services
     public async Task<IActionResult> Index()
     {
         return View();
@@ -58,8 +56,6 @@ public class ServicesController : Controller
         return Json(new { data });
     }
 
-
-    // GET: Services/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -94,13 +90,10 @@ public class ServicesController : Controller
         });
     }
 
-    // GET: Services/Create
     public IActionResult Create()
     {
-        ViewData["MainSectionId"] = new SelectList(_unitOfWork.MainSections.FindAll(s => s.IsDeleted == false && s.IsShow == true), "Id", "TitleAr");
-        return View(new Service());
+        return View();
     }
-
 
     [HttpPost]
     public async Task<IActionResult> Create(ServiceDto serviceDto)
@@ -109,7 +102,9 @@ public class ServicesController : Controller
         {
             return Json(new { success = false, message = "يرجى ملء جميع الحقول المطلوبة." });
         }
+
         Service service = new Service();
+
         try
         {
             // Save to database (example)
@@ -132,7 +127,6 @@ public class ServicesController : Controller
         }
     }
 
-    // GET: Services/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         return View(id);
@@ -155,7 +149,9 @@ public class ServicesController : Controller
                 updatedService.Price = service.Price;
                 updatedService.Qty = service.Qty;
                 updatedService.IsDeleted = false;
+
                 _unitOfWork.Services.Update(updatedService);
+
                 await _unitOfWork.SaveChangesAsync();
 
                 return Json(new { success = true, message = "تم تحديث الخدمة بنجاح!" });
@@ -173,8 +169,8 @@ public class ServicesController : Controller
             }
         }
 
-        // If model validation fails, return errors
         var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+
         return Json(new { success = false, errors });
     }
 
@@ -187,6 +183,7 @@ public class ServicesController : Controller
         var services = await _unitOfWork.Services
             .FindByQuery(
                 criteria: s => s.Id == id && s.IsDeleted == false).FirstOrDefaultAsync();
+
         if (services != null)
         {
             services.IsDeleted = true;
@@ -202,30 +199,4 @@ public class ServicesController : Controller
     {
         return _unitOfWork.Services.IsExist(e => e.Id == id);
     }
-
-    #region  AJAX
-
-    // check user type 
-    public async Task<IActionResult> CheckUserType(string userId)
-    {
-        if (userId == null)
-        {
-            return Json(new { Error = true, Message = "يجب تحديد مقدم الخدمة أولا  " });
-        }
-
-        var user = await _unitOfWork.Users.FindAsync(m => m.Id == userId);
-        if (user == null)
-        {
-            return Json(new { Error = true, Message = "يجب تحديد مقدم الخدمة أولا  " });
-        }
-
-        return user.UserType switch
-        {
-            UserType.Admin => Json(new { Error = false, type = 1, Message = "مقدم الخدمة مركز" }),
-            UserType.User => Json(new { Error = false, type = 2, Message = "مقدم الخدمة مستقل" }),
-            _ => Json(new { Error = true, Message = "يجب تحديد مقدم الخدمة أولا  " })
-        };
-    }
-
-    #endregion
 }

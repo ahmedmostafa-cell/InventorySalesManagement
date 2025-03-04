@@ -1,7 +1,6 @@
 ﻿using InventorySalesManagement.Core.Entity.ApplicationData;
 using InventorySalesManagement.Core.Helpers;
 using InventorySalesManagement.Core;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +11,8 @@ namespace InventorySalesManagement.Extensions;
 
 public static class IdentityServicesExtensions
 {
-
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config)
     {
-
-		// Identity service
 		services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 		{
 			options.Password.RequireNonAlphanumeric = false;
@@ -54,7 +50,7 @@ public static class IdentityServicesExtensions
             {
                 OnMessageReceived = context =>
                 {
-                    var token = context.Request.Cookies["AuthToken"]; // Get JWT from Cookie
+                    var token = context.Request.Cookies["AuthToken"]; 
                     if (!string.IsNullOrEmpty(token))
                     {
                         context.Token = token;
@@ -65,23 +61,20 @@ public static class IdentityServicesExtensions
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
         {
-            options.LoginPath = "/Account/Login"; // Redirect to login if not authenticated
-            options.AccessDeniedPath = "/Account/AccessDenied"; // Redirect if unauthorized
+            options.LoginPath = "/Account/Login"; 
+            options.AccessDeniedPath = "/Account/AccessDenied";
             options.Cookie.HttpOnly = true;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.Cookie.SameSite = SameSiteMode.Strict;
             options.SlidingExpiration = true;
         });
 
-
-
         services.AddSession(options =>
         {
-            options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
-            options.Cookie.HttpOnly = true; // Make session cookie HTTP only
-            options.Cookie.IsEssential = true; // Ensure the cookie is always sent
+            options.IdleTimeout = TimeSpan.FromMinutes(30); 
+            options.Cookie.HttpOnly = true; 
+            options.Cookie.IsEssential = true;
         });
-
 
         return services;
 

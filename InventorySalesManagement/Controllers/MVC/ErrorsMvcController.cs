@@ -5,8 +5,6 @@ namespace InventorySalesManagement.Controllers.MVC;
 
 public class ErrorsMvcController : Controller
 {
-
-
     public IActionResult Index(int code, string details = null)
     {
         return code switch
@@ -17,7 +15,6 @@ public class ErrorsMvcController : Controller
             500 => View(new BaseResponse() { ErrorMessage = "Internal Server Error", ErrorCode = code, Data = details }),
             _ => null
         };
-
     }
 }
 
