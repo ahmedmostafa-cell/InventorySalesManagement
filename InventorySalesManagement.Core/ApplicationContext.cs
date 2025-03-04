@@ -10,7 +10,6 @@ namespace InventorySalesManagement.Core;
 
 public class ApplicationContext : IdentityDbContext<ApplicationUser>
 {
-    //-----------------------------------------------------------------------------------
     public virtual DbSet<MainSection> MainSections { get; set; }
     public virtual DbSet<Service> Services { get; set; }
     public virtual DbSet<Order> Orders { get; set; }
@@ -18,17 +17,13 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
     public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
     {
     }
+
     public ApplicationContext()
     {
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlServer(
-                "Server=MAHMOUD-SABRY-P;Database=JamalKhanat;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
-        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

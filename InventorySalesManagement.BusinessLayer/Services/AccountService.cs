@@ -12,7 +12,6 @@ using System.Security.Claims;
 using System.Text;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using InventorySalesManagement.Core.ModelView.AuthViewModel.UpdateData;
 
 namespace InventorySalesManagement.BusinessLayer.Services;
 
@@ -99,7 +98,6 @@ public class AccountService : IAccountService
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null)
             return false;
-        user.DeviceToken = null;
         await _userManager.UpdateAsync(user);
         return true;
     }
@@ -157,50 +155,6 @@ public class AccountService : IAccountService
         {
             return new AuthModel { Message = "Registered successfully", ArMessage = "تم تسجيل الدخول بنجاح" };
         }
-    }
-
-    public async Task<AuthModel> UpdateAdminProfile(string userId, UpdateAdminMv model)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user is null)
-            return new AuthModel { ErrorCode = (int)Errors.TheUserNotExistOrDeleted, Message = "User not found!", ArMessage = "المستخدم غير موجود" };
-        if (await Task.Run(() => _userManager.Users.Any(item => (item.PhoneNumber == model.PhoneNumber) && (item.Id != userId))))
-            return new AuthModel { Message = "this phone number is already Exist!", ArMessage = "هذا الرقم المحمول مستخدم من قبل" };
-        if (await Task.Run(() => _userManager.Users.Any(item => (item.Email == model.Email) && (item.Id != userId))))
-            return new AuthModel { Message = "this email is already Exist!", ArMessage = "هذا البريد الالكتروني مستخدم من قبل" };
-
-
-
-
-        user.FullName = model.FullName;
-        user.PhoneNumber = model.PhoneNumber;
-        user.UserName = model.PhoneNumber;
-        user.NormalizedUserName = model.PhoneNumber;
-        user.Email = model.Email;
-        user.NormalizedEmail = model.Email;
-
-
-
-        await _userManager.UpdateAsync(user);
-		
-		var jwtSecurityToken = await GenerateJwtToken(user);
-		var rolesList = await _userManager.GetRolesAsync(user);
-
-		var result = new AuthModel
-		{
-			Message = "The profile has been updated successfully",
-			ArMessage = "تم تحديث الملف الشخصي بنجاح",
-			Email = user.Email,
-			PhoneNumber = user.PhoneNumber,
-			FullName = user.FullName,
-			IsAuthenticated = true,
-			UserType = user.UserType,
-			IsAdmin = user.IsAdmin,
-			IsApproved = user.IsApproved,
-			Roles = rolesList.ToList(),
-			Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
-		};
-        return result;
     }
 
 	#region create and validate JWT token

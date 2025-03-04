@@ -138,7 +138,6 @@ public class MainSectionsController : Controller
         if (mainSection != null)
         {
             mainSection.IsDeleted = true;
-            mainSection.IsShow = false;
             mainSection.DeletedAt = DateTime.Now;
             _unitOfWork.MainSections.Update(mainSection);
         }

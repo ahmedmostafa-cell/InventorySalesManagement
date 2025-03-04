@@ -4,12 +4,10 @@ namespace InventorySalesManagement.Core.ModelView.AuthViewModel;
 
 public class AuthModel
 {
-
     public bool IsAuthenticated { get; set; }
     public string UserId { get; set; }
     public string UserName { get; set; }
     public string Email { get; set; }
-    public List<string> Roles { get; set; }
     public string Token { get; set; }
     public string FullName { get; set; }
     public bool Status { get; set; }
@@ -22,6 +20,4 @@ public class AuthModel
     public string Message { get; set; }
     public string ArMessage { get; set; }
     public string PhoneNumber { get; set; }
-
-
 }

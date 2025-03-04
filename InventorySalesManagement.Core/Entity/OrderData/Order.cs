@@ -12,10 +12,8 @@ public class Order : BaseEntity
     [Display(Name = "رقم الطلب")]
     public string OrderNumber { get; set; }
 
-
     [Display(Name = "الاجمالى")]
     public float Total { get; set; }
-
 
     [Display(Name = "تاريخ الطلب")]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]

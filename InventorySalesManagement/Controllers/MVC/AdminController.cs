@@ -1,7 +1,6 @@
 ﻿using InventorySalesManagement.BusinessLayer.Interfaces;
 using InventorySalesManagement.Core.Helpers;
 using InventorySalesManagement.Core.ModelView.AuthViewModel.RegisterData;
-using InventorySalesManagement.Core.ModelView.AuthViewModel.UpdateData;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

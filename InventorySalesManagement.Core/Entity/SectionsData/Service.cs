@@ -31,24 +31,17 @@ public class Service : BaseEntity
     [Display(Name = "نوع المنتج ")]
     public ProductType ProductType { get; set; }
 
-
-    //-----------------------------------------------------------------------
-
     [Display(Name = " السعر  ")]
     [Required(ErrorMessage = "السعر مطلوب")]
     [Range(1, 1000000, ErrorMessage = "السعر يجب ان يكون اكبر من 0")]
     public float Price { get; set; }
 
-    //-------------------------------------------------------------------
     [ForeignKey("MainSection")]
     [Display(Name = "الفئة الرئيسية")]
     [Required(ErrorMessage = "الفئة الرئيسية مطلوبة")]
     public int MainSectionId { get; set; }
     [Display(Name = "الفئة الرئيسية")]
     public MainSection MainSection { get; set; }
-
-    //--------------------------------------------------------------------
-    public IEnumerable<Order> Orders { get; set; } = new List<Order>();
 
     public List<OrderService> OrderServices { get; set; } = new List<OrderService>();
 

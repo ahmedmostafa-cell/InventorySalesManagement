@@ -2,7 +2,6 @@
 using InventorySalesManagement.Core.ModelView.AuthViewModel;
 using InventorySalesManagement.Core.ModelView.AuthViewModel.LoginData;
 using InventorySalesManagement.Core.ModelView.AuthViewModel.RegisterData;
-using InventorySalesManagement.Core.ModelView.AuthViewModel.UpdateData;
 
 namespace InventorySalesManagement.BusinessLayer.Interfaces;
 

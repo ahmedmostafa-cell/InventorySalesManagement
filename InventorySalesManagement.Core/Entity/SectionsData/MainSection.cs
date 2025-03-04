@@ -18,18 +18,4 @@ public class MainSection : BaseEntity
     [Display(Name = "وصف الفئة ")]
     public string Description { get; set; }
 
-    [Display(Name = " الصورة  ")]
-    public string ImgUrl { get; set; }
-
-
-    public bool IsShow { get; set; } = true;
-    [Display(Name = " متميز")]
-    public bool IsFeatured { get; set; } = false; // هل متميز ام لا
-
-
-    //--------------------------------------------------------------------
-    [NotMapped]
-    [Display(Name = " الصورة  ")]
-    public IFormFile ImgFile { get; set; }
-
 }

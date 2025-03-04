@@ -44,12 +44,9 @@ public class DashboardController : Controller
         var total = await _unitOfWork.Orders.FindByQuery(s => s.IsDeleted == false ).SumAsync(s => s.Total);
         var data = new DashboardCounts()
         {
-            Centers = await _unitOfWork.Users.CountAsync(s => s.UserType == UserType.Admin && s.IsApproved == true),
-            FreeAgents = await _unitOfWork.Users.CountAsync(s => s.UserType == UserType.User && s.IsApproved == true),
             AllSections = await _unitOfWork.MainSections.CountAsync(s => s.IsDeleted == false),
             AllServices = await _unitOfWork.Services.CountAsync(s => s.IsDeleted == false),
             AllOrders = await _unitOfWork.Orders.CountAsync(s => s.IsDeleted == false),
-            TotalAmount = total,
         };
         return View(data);
     }
