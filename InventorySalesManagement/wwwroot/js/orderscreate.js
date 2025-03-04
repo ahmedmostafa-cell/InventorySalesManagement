@@ -93,9 +93,16 @@ $(document).ready(function () {
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(orderData),
-            success: function () {
-                alert("تم حفظ الطلب بنجاح!");
-                window.location.reload();
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message); // Success message
+                    window.location.reload();
+                } else {
+                    alert(response.message); // Show error message from backend
+                }
+            },
+            error: function () {
+                alert("حدث خطأ أثناء حفظ الطلب، يرجى المحاولة مرة أخرى."); // Handle unexpected errors
             }
         });
     });

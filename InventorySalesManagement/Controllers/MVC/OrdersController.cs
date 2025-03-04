@@ -1,5 +1,6 @@
 ﻿using InventorySalesManagement.Core.Entity.OrderData;
 using InventorySalesManagement.Core.Entity.OrderServiceData;
+using InventorySalesManagement.Core.Entity.SectionsData;
 using InventorySalesManagement.Core.ModelView.OrdersModel;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -37,11 +38,25 @@ public class OrdersController : Controller
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] OrderViewModel model)
+    public async Task<IActionResult> Create([FromBody] OrderViewModel model)
     {
         if (model.OrderServices == null || model.OrderServices.Count == 0)
         {
             return BadRequest("لا يوجد خدمات مضافة للطلب.");
+        }
+
+        foreach (var orderService in model.OrderServices)
+        {
+            Service service = await _unitOfWork.Services.GetByIdAsync(orderService.ServiceId);
+            if (service == null)
+            {
+                return Json(new { success = false, message = "الخدمة غير موجودة." });
+            }
+
+            if (orderService.Quantity > service.Qty)
+            {
+                return Json(new { success = false, message = $"الكمية المطلوبة ({orderService.Quantity}) أكبر من الكمية المتاحة ({service.Qty}) للخدمة {service.TitleAr}." });
+            }
         }
 
         float totalOrderPrice = model.OrderServices.Sum(os => os.Quantity * os.Price);
@@ -60,9 +75,16 @@ public class OrdersController : Controller
 
         _unitOfWork.Orders.Add(order);
 
+        foreach (var orderService in model.OrderServices)
+        {
+            Service service = await _unitOfWork.Services.GetByIdAsync(orderService.ServiceId);
+            service.Qty -= orderService.Quantity; // Reduce stock
+            _unitOfWork.Services.Update(service); // Mark service as updated
+        }
+
         _unitOfWork.SaveChanges();
 
-        return Json(new { success = true });
+        return Json(new { success = true, message = "تم حفظ الطلب بنجاح!" });
     }
 
     [HttpGet]
