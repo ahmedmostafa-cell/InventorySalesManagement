@@ -174,25 +174,29 @@ public class ServicesController : Controller
         return Json(new { success = false, errors });
     }
 
+    [HttpDelete]
     public async Task<IActionResult> Delete(int id)
     {
         if (_unitOfWork.Services == null)
         {
-            return Problem("Entity set 'ApplicationContext.MainSections'  is null.");
+            return Json(new { success = false, message = "Entity set is null." });
         }
-        var services = await _unitOfWork.Services
-            .FindByQuery(
-                criteria: s => s.Id == id && s.IsDeleted == false).FirstOrDefaultAsync();
 
-        if (services != null)
+        var service = await _unitOfWork.Services
+            .FindByQuery(s => s.Id == id && !s.IsDeleted)
+            .FirstOrDefaultAsync();
+
+        if (service == null)
         {
-            services.IsDeleted = true;
-            services.DeletedAt = DateTime.Now;
-            _unitOfWork.Services.Update(services);
+            return Json(new { success = false, message = "الخدمة غير موجودة." });
         }
+
+        service.IsDeleted = true;
+        service.DeletedAt = DateTime.Now;
+        _unitOfWork.Services.Update(service);
 
         await _unitOfWork.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        return Json(new { success = true, message = "تم حذف الخدمة بنجاح." });
     }
 
     private bool ServiceExists(int id)

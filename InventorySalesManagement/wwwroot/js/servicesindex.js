@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    $('#servicesTable').DataTable({
+    var table = $('#servicesTable').DataTable({
         "processing": true,
         "serverSide": false,
         "ajax": {
@@ -23,7 +23,7 @@
                                                 <div class="dropdown-menu dropdown-menu-end">
                                                     <a href="/Services/Edit/${data}" class="dropdown-item btn btn-warning">تعديل</a>
                                                     <a href="/Services/Details/${data}" class="dropdown-item btn btn-info">تفاصيل</a>
-                                                    <a href="/Services/Delete/${data}" class="btn btn-danger dropdown-item" onclick="return confirm('هل أنت متأكد من الحذف ؟');">حذف</a>
+                                                    <a href="javascript:void(0);" class="dropdown-item btn btn-danger" onclick="deleteService(${data})">حذف</a>
                                                 </div>
                                             </div>`;
                 }
@@ -44,4 +44,19 @@
             }
         }
     });
+    window.deleteService = function (id) {
+        if (confirm('هل أنت متأكد من الحذف؟')) {
+            $.ajax({
+                url: "/Services/Delete/" + id,
+                type: "DELETE",
+                success: function (response) {
+                    alert(response.message);
+                    table.ajax.reload(null, false); // Reload table data without resetting pagination
+                },
+                error: function () {
+                    alert("حدث خطأ أثناء الحذف!");
+                }
+            });
+        }
+    };
 });
