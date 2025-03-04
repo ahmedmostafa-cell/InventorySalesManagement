@@ -70,11 +70,31 @@ public class AccountService : IAccountService
 
     public async Task<AuthModel> LoginAsync(LoginModel model)
     {
-        var user = await _userManager.FindByNameAsync(model.PhoneNumber);
+        var userByPhone = await _userManager.FindByNameAsync(model.PhoneNumber);
+        var userByEmail = await _userManager.FindByEmailAsync(model.PhoneNumber);
+
+        // Prioritize userByPhone if found, otherwise use userByEmail
+        var user = userByPhone ?? userByEmail;
+
         if (user is null)
-            return new AuthModel { Message = "Your phone number is not Exist!", ArMessage = "رقم الهاتف غير مسجل", ErrorCode = (int)Errors.ThisPhoneNumberNotExist };
+        {
+            return new AuthModel
+            {
+                Message = "Your username does not exist!",
+                ArMessage = "اسم المستخدم غير مسجل",
+                ErrorCode = (int)Errors.ThisPhoneNumberNotExist
+            };
+        }
+
         if (!await _userManager.CheckPasswordAsync(user, model.Password))
-            return new AuthModel { Message = "Password is not correct!", ArMessage = "كلمة المرور غير صحيحة", ErrorCode = (int)Errors.TheUsernameOrPasswordIsIncorrect };
+        {
+            return new AuthModel
+            {
+                Message = "Password is incorrect!",
+                ArMessage = "كلمة المرور غير صحيحة",
+                ErrorCode = (int)Errors.TheUsernameOrPasswordIsIncorrect
+            };
+        }
 
         return new AuthModel
         {
@@ -87,11 +107,11 @@ public class AccountService : IAccountService
             IsAdmin = user.IsAdmin,
             IsApproved = user.IsApproved,
             Token = new JwtSecurityTokenHandler().WriteToken(GenerateJwtToken(user).Result),
-            Message = "Login successfully",
+            Message = "Login successful",
             ArMessage = "تم تسجيل الدخول بنجاح"
-
         };
     }
+
 
     public async Task<bool> Logout(string userName)
     {

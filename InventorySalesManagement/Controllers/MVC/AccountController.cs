@@ -45,22 +45,9 @@ public class AccountController : Controller
             Expires = DateTime.UtcNow.AddHours(2)
         });
 
-        var user = await _accountService.GetUserByPhoneNumber(model.PhoneNumber);
 
-        if (user.IsAdmin)
-        {
-            await _signInManager.SignInAsync(user, model.IsPersist);
-            return Json(new { success = true, result.Token });
-        }
-        if (!result.IsAuthenticated)
-        {
-            ModelState.AddModelError(string.Empty, result.Message);
-            return Json(new { success = false, message = "Invalid username or password." });
-        }
+        return Json(new { success = true, result.Token });
 
-        ModelState.AddModelError(string.Empty, "لا تملك الصلاحية اللازمه للدخول");
-
-        return Json(new { success = false, message = "unauthorized." });
     }
 
 }

@@ -5,9 +5,8 @@ namespace InventorySalesManagement.Core.ModelView.AuthViewModel.LoginData;
 public class LoginModel
 {
 
-    [Required(ErrorMessage = "يجب أدخال رقم الهاتف ")]
+    [Required(ErrorMessage = "يجب أدخال اسم المستخدم ")]
     [Display(Name = "Phone Number")]
-    [Phone(ErrorMessage = "رقم الهاتف غير صحيح")]
     public string PhoneNumber { get; set; }
 
     [Required(ErrorMessage = "يجب أدخال كلمة السر ")]
