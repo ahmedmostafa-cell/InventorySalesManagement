@@ -1,4 +1,4 @@
-﻿@model MainSection
+﻿@model MainSectionDto
 
 @{
     ViewData["Title"] = "تعديل البيانات";
@@ -15,11 +15,6 @@
                 <form class="form-horizontal" asp-action="Edit" enctype="multipart/form-data" runat="server">
                     <div asp-validation-summary="All" style="margin-bottom: 2rem; text-align: center;" class="text-danger"></div>
                     
-                    <input type="hidden" asp-for="Id" />
-                    <input type="hidden" asp-for="CreatedAt" />
-                    <input type="hidden" asp-for="IsDeleted" />
-                    <input type="hidden" asp-for="UpdatedAt" />
-                    <input type="hidden" asp-for="IsUpdated" />
                      
                     <div class="form-group">
                         <label asp-for="TitleAr" class="control-label"></label>

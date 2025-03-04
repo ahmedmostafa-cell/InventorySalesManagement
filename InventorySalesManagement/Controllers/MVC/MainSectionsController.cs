@@ -1,4 +1,5 @@
-﻿using InventorySalesManagement.Core.Entity.ApplicationData;
+﻿using InventorySalesManagement.Core.DTO.EntityDto;
+using InventorySalesManagement.Core.Entity.ApplicationData;
 using InventorySalesManagement.Core.Entity.SectionsData;
 using InventorySalesManagement.RepositoryLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -65,11 +66,17 @@ public class MainSectionsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(MainSection mainSection)
+    public async Task<IActionResult> Create(MainSectionDto mainSectionDto)
     {
-        if (!ModelState.IsValid) return View(mainSection);
-       
-        await _unitOfWork.MainSections.AddAsync(mainSection);
+        if (!ModelState.IsValid) return View(mainSectionDto);
+
+        MainSection mainSection = new MainSection();
+
+        mainSection.TitleEn = mainSectionDto.TitleEn;
+        mainSection.TitleAr = mainSectionDto.TitleAr;
+        mainSection.Description = mainSectionDto.Description;
+
+         await _unitOfWork.MainSections.AddAsync(mainSection);
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -86,40 +93,42 @@ public class MainSectionsController : Controller
         var mainSection = await _unitOfWork.MainSections
             .FindAsync(m => m.Id == id && m.IsDeleted == false);
 
+        MainSectionDto mainSectionDto = new MainSectionDto();
+        mainSectionDto.TitleEn = mainSection.TitleEn;
+        mainSectionDto.TitleAr = mainSection.TitleAr;
+        mainSectionDto.Description = mainSection.Description;
+
         if (mainSection == null)
         {
             return NotFound();
         }
 
-        return View(mainSection);
+        return View(mainSectionDto);
     }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, MainSection mainSection)
+    public async Task<IActionResult> Edit(int id, MainSectionDto mainSectionDto)
     {
-        if (id != mainSection.Id)
-        {
-            return NotFound();
-        }
 
-        if (!ModelState.IsValid) return View(mainSection);
+        if (!ModelState.IsValid) return View(mainSectionDto);
         try
         {
+            var mainSection = await _unitOfWork.MainSections
+                        .FindByQuery(
+                            criteria: s => s.Id == id && s.IsDeleted == false).FirstOrDefaultAsync();
+
+            mainSection.TitleEn = mainSectionDto.TitleEn;
+            mainSection.TitleAr = mainSectionDto.TitleAr;
+            mainSection.Description = mainSectionDto.Description;
+
             _unitOfWork.MainSections.Update(mainSection);
+
             await _unitOfWork.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!MainSectionExists(mainSection.Id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            return NotFound();
         }
 
         return RedirectToAction(nameof(Index));
